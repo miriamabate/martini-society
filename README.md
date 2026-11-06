@@ -1,0 +1,80 @@
+# 🍸 Martini Society
+
+La nostra app per organizzare le serate. Gira sul PC di una di noi, le altre entrano dal telefono.
+
+## In locale
+
+Serve solo **Python 3** (su Mac c'è già, su Windows si scarica da python.org). Non c'è niente da installare.
+
+```bash
+cd martini-society
+python3 server.py
+```
+
+Nel terminale compaiono due indirizzi:
+
+- **Sul tuo PC:** http://localhost:8000
+- **Per le amiche sulla stessa Wi-Fi:** http://192.168.x.x:8000 (aprilo dal telefono e aggiungilo alla schermata Home: sembra un'app vera)
+
+I font sono inclusi nella cartella `docs/fonts` (Unbounded e Manrope, licenza OFL), quindi l'app funziona anche offline.
+
+Su Windows usa `python server.py`. Se il firewall chiede il permesso, consenti l'accesso sulle **reti private**.
+
+## Primo avvio
+
+1. Vai su **Le amiche** e crea un profilo per ognuna, con numero di telefono e prefisso.
+2. Ognuna, dal proprio telefono, sceglie **chi è** in alto a destra. La scelta resta salvata su quel dispositivo.
+
+## Cosa c'è
+
+| Sezione | Cosa fa |
+|---|---|
+| 🗓 **Calendario** | Vista del mese con tre tipi di piano: serata/evento, appuntamento e chiamata. Ognuna preme "Ci sono!" per confermare. |
+| 🍸 **Locali** | Ognuna vota da 1 a 5 cibo, drink, prezzo, gente, musica, atmosfera e servizio, poi aggiunge "ci torneresti?", il drink preso e un commento. L'app fa le medie, le classifiche e la Hall of Fame. |
+| 🎡 **Da provare** | I posti che vogliamo provare. "Ci voglio andare" funziona come un voto, la **Ruota** sceglie a caso (vince più spesso chi ha più voti), "Fatto!" sposta il posto tra i Locali così lo votate. |
+| 👠 **Le amiche** | I profili, con colore, simbolo e motto. |
+
+## WhatsApp e FaceTime
+
+L'app usa i **link ufficiali** dei due servizi, che funzionano senza API e senza account business:
+
+- **💬 Manda sul gruppo WhatsApp**: apre WhatsApp con il messaggio già scritto. Scegli il gruppo e invii.
+- **Chiamate**: nell'evento puoi incollare il **link della chiamata di gruppo** (da WhatsApp: *Chiamate → Crea link*; da FaceTime: *Crea link*). Così tutte entrano con un tap.
+- **Pulsanti diretti** per ogni amica: `wa.me/numero` per WhatsApp e `facetime://` per FaceTime. FaceTime funziona solo su iPhone, iPad e Mac.
+- **📲 Aggiungi al mio calendario** scarica un file `.ics` con promemoria un'ora prima. Si apre con il calendario di iPhone, Google o Outlook.
+
+L'app non può far partire una chiamata o mandare un messaggio da sola: Apple e Meta non lo permettono a app esterne. Prepara tutto, e l'ultimo tap tocca a voi.
+
+## Dati e backup
+
+In modalità locale tutto viene salvato in `data.json`, nella cartella dell'app. Per fare un backup basta copiare quel file.
+
+## Online su GitHub Pages (da ovunque, PC spento)
+
+GitHub Pages pubblica solo le pagine, non può salvare dati. I dati vanno quindi su **Supabase**, un database gratuito, e sono protetti da una **parola d'ordine del club**.
+
+### 1. Il database (Supabase, ~5 minuti)
+1. Crea un account su [supabase.com](https://supabase.com) e poi un **New project**. Il piano Free basta.
+2. Vai su **SQL Editor → New query** e incolla il contenuto di `supabase.sql`. **Prima** cambia la parola d'ordine nella riga `insert into private.club …`, poi premi **Run**.
+3. Vai su **Project Settings → API** e copia **Project URL** e la chiave **anon public**.
+
+### 2. La configurazione
+Apri `docs/config.js` e incolla URL e anon key. La anon key può stare in un repo pubblico, è fatta apposta. La **parola d'ordine invece non va mai scritta lì**: la inserite voi la prima volta che aprite l'app.
+
+### 3. La pubblicazione (GitHub Pages)
+1. Su GitHub crea un repo nuovo, per esempio `martini-society`.
+2. Carica i file, trascinandoli in **Add file → Upload files** oppure così:
+   ```bash
+   git init && git add . && git commit -m "Martini Society 🍸"
+   git branch -M main
+   git remote add origin https://github.com/TUO-UTENTE/martini-society.git
+   git push -u origin main
+   ```
+3. Vai su **Settings → Pages → Build and deployment**, scegli *Deploy from a branch*, poi **main** e la cartella **/docs**, e premi **Save**.
+4. Dopo un minuto l'app è su `https://TUO-UTENTE.github.io/martini-society/`. Mandate il link e la parola d'ordine sul gruppo.
+
+### Da sapere
+- Il **sito** di GitHub Pages è sempre pubblico, ma senza parola d'ordine si vede solo la schermata "Solo su invito". Numeri, piani e voti restano nel database.
+- Usate una parola d'ordine **lunga**, tipo una frase. Per cambiarla: `update private.club set secret = 'nuova-frase';` nel SQL Editor. A quel punto l'app la richiede a tutte.
+- Se `config.js` è vuoto, l'app torna in modalità locale con `python3 server.py`.
+- Su Supabase Free i progetti senza attività per 7 giorni vengono messi in pausa. Si riattivano dalla dashboard con un clic.

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf7f4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Martini Society">
+<title>Martini Society</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23151214'/><text x='32' y='45' font-family='Arial,sans-serif' font-weight='800' font-size='36' fill='%23f4e4e7' text-anchor='middle'>M</text></svg>">
+<style>
+/* ---------- fonts (inclusi nella cartella fonts/, licenza OFL) ---------- */
+@font-face{font-family:'Unbounded';font-weight:200 900;font-display:swap;src:url(fonts/unbounded-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Unbounded';font-weight:200 900;font-display:swap;src:url(fonts/unbounded-latin-ext-wght-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+20A0-20AB,U+20AD-20C0,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Manrope';font-weight:200 800;font-display:swap;src:url(fonts/manrope-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Manrope';font-weight:200 800;font-display:swap;src:url(fonts/manrope-latin-ext-wght-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+20A0-20AB,U+20AD-20C0,U+2C60-2C7F,U+A720-A7FF}
+
+:root{
+  --bg:#faf7f4; --paper:#fff; --ink:#151214; --ink2:#4a4246; --mute:#8f8489; --line:#ebe3df; --line2:#f3eeeb;
+  --blush:#f5e6e9; --rose:#d88ea4; --accent:#a3164a; --champ:#b5935f; --violet:#6d6386;
+  --display:'Unbounded','Manrope',system-ui,sans-serif;
+  --ui:'Manrope',-apple-system,'Segoe UI',system-ui,sans-serif;
+  
+  --r:20px; --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(60vw 40vw at 85% -10%,rgba(216,142,164,.16),transparent 60%),radial-gradient(50vw 40vw at -10% 30%,rgba(181,147,95,.08),transparent 60%)}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+::selection{background:var(--blush)}
+
+/* ---------- hero: sticker collage ---------- */
+.hero{position:relative;height:clamp(360px,40vw,520px);overflow:hidden;background:
+  radial-gradient(40% 60% at 50% 50%,rgba(255,214,231,.75),transparent 70%),
+  radial-gradient(30% 40% at 12% 90%,rgba(255,226,140,.25),transparent 70%),#fffafb}
+.logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:min(56vw,720px);margin:0;z-index:3;line-height:0}
+.logo svg{width:100%;height:auto;overflow:visible;display:block}
+.logo .l1{font-family:var(--display);font-weight:900;font-size:210px;letter-spacing:-6px}
+.logo .l2{font-family:var(--display);font-weight:700;font-size:58px;letter-spacing:34px}
+.st{position:absolute;z-index:2;display:block;overflow:visible;animation:pop .7s var(--ease) both, bob 7s ease-in-out infinite;transform-origin:center}
+.st:hover{animation-play-state:paused}
+@keyframes pop{from{opacity:0;scale:.6}}
+@keyframes bob{50%{translate:0 -6px}}
+.st-taxi{left:2.5%;bottom:5%;width:23%;rotate:-5deg;animation-delay:.05s,0s}
+.st-martini{left:6%;top:5%;width:11%;rotate:-12deg;animation-delay:.15s,1.2s}
+.st-lipstick{left:25%;top:9%;width:3.6%;rotate:24deg;animation-delay:.25s,2.4s}
+.st-mule{right:17%;top:4%;width:15%;rotate:12deg;animation-delay:.2s,.6s}
+.st-kiss{right:22%;bottom:7%;width:9%;rotate:-14deg;animation-delay:.3s,1.8s}
+.st-liberty{right:3%;bottom:-2%;width:8.5%;rotate:3deg;animation-delay:.1s,3s}
+.me{position:absolute;top:16px;right:18px;z-index:3}
+.me{display:flex;align-items:center;gap:8px;font-size:13px}
+.me .av{width:26px;height:26px;font-size:13px}
+.me select{appearance:none;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.55);backdrop-filter:blur(8px);border-radius:999px;padding:6px 28px 6px 12px;font-weight:500;cursor:pointer;
+  background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f8489' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-size:14px;background-position:right 9px center}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:20;background:rgba(250,247,244,.86);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+nav .in{max-width:1180px;margin:0 auto;display:flex;justify-content:center;gap:clamp(8px,3vw,44px)}
+nav button{position:relative;border:0;background:none;padding:16px 4px;cursor:pointer;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);font-weight:600;display:flex;align-items:center;gap:8px;transition:color .25s}
+nav button svg{display:none}
+nav button:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1.5px;background:var(--ink);transform:scaleX(0);transition:transform .35s var(--ease)}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--ink)}
+nav button.on:after{transform:scaleX(1)}
+
+main{max-width:1180px;margin:0 auto;padding:48px 28px 110px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+.kick{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:10px}
+.kick:before{content:"";width:22px;height:1px;background:currentColor}
+.head h2{font-family:var(--display);font-weight:600;font-size:clamp(34px,4.6vw,54px);line-height:1;letter-spacing:-.04em;margin:0}
+.head p{margin:10px 0 0;color:var(--mute);max-width:46ch}
+h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;margin:0}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:10px 18px;border-radius:999px;cursor:pointer;text-decoration:none;font-size:13.5px;font-weight:600;transition:all .25s var(--ease);white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.pri:hover{background:#2c2629}
+.btn.acc{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--line2)}
+.btn.sm{padding:7px 13px;font-size:12.5px}
+.btn.icon{padding:9px;width:38px;height:38px}
+.btn.danger{color:#9b1d3c}
+.btn.danger:hover{border-color:#9b1d3c}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ---------- generic ---------- */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--mute)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.muted{color:var(--mute)}
+.small{font-size:13px}
+.empty{text-align:center;padding:70px 20px;color:var(--mute)}
+.empty b{display:block;font-family:var(--display);font-weight:600;font-size:30px;color:var(--ink);margin-bottom:6px;letter-spacing:-.02em}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-family:var(--display);font-size:13px;color:#fff;border:2px solid var(--paper);flex:none;font-weight:700}
+.avs{display:inline-flex}
+.avs .av+.av{margin-left:-8px}
+.reveal{animation:rise .5s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+
+/* ---------- calendar ---------- */
+.cal-wrap{display:grid;grid-template-columns:1fr 340px;gap:36px;align-items:start}
+@media (max-width:980px){.cal-wrap{grid-template-columns:1fr}}
+.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cal-top h3{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.cal-top h3 span{color:var(--mute);font-family:var(--ui);font-size:14px;font-weight:500;letter-spacing:.1em;margin-left:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--paper);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.dow{text-align:left;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);padding:12px 12px 8px;font-weight:600;border-bottom:1px solid var(--line)}
+.day{min-height:112px;padding:10px;cursor:pointer;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:4px;min-width:0;transition:background .2s}
+.day:nth-child(7n){border-right:0}
+.day:hover{background:#fdf9f8}
+.day.out .n{color:#cfc5c1}
+.day .n{font-family:var(--display);font-size:17px;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;margin:-4px 0 2px -4px;font-variant-numeric:lining-nums}
+.day.today .n{background:var(--ink);color:#fff}
+.day.wk{background:#fdfbfa}
+.ev{display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.3;font-weight:500;padding:3px 6px;border-radius:7px;cursor:pointer;min-width:0}
+.ev span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev:hover{background:var(--line2)}
+.ev time{color:var(--mute);font-weight:500;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.agenda h3{font-size:24px;font-weight:600;margin-bottom:6px}
+.ag{display:grid;grid-template-columns:54px 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line2);cursor:pointer}
+.ag:hover .ag-t{color:var(--accent)}
+.ag-d{text-align:center}
+.ag-d b{display:block;font-family:var(--display);font-size:34px;font-weight:500;line-height:1;letter-spacing:-.03em}
+.ag-d small{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.ag-t{font-weight:600;font-size:15px;margin:3px 0 2px;transition:color .2s}
+@media (max-width:640px){
+  .day{min-height:64px;padding:6px 4px;align-items:center}
+  .day .n{font-size:15px;margin:0}
+  .ev{padding:0;gap:0;justify-content:center}.ev span,.ev time{display:none}
+  .evs{display:flex;gap:3px;justify-content:center}
+  .dow{text-align:center;padding:10px 0 6px;font-size:9.5px;letter-spacing:.1em}
+}
+
+/* ---------- places ---------- */
+.charts{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--paper);margin-bottom:34px;overflow:hidden}
+@media (max-width:980px){.charts{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.charts{grid-template-columns:repeat(2,1fr)}}
+.chart{padding:20px 18px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.chart .lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--champ);font-weight:700}
+.chart .nm{font-family:var(--display);font-size:21px;line-height:1.15;margin:8px 0 6px;letter-spacing:-.015em}
+.chart .v{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.select{appearance:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 32px 9px 15px;font-size:13px;font-weight:500;cursor:pointer;
+  background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f8489' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-size:14px;background-position:right 11px center}
+.place{cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s;position:relative;display:flex;flex-direction:column}
+.place:hover{transform:translateY(-3px);box-shadow:0 24px 50px -28px rgba(21,18,20,.28);border-color:#e0d6d1}
+.place-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.place h3{font-size:27px;font-weight:600;line-height:1.1;margin-top:8px;letter-spacing:-.025em}
+.score{font-family:var(--display);font-size:46px;line-height:.9;letter-spacing:-.05em;font-weight:500;text-align:right}
+.score small{display:block;font-family:var(--ui);font-size:10px;letter-spacing:.18em;color:var(--mute);font-weight:600;margin-top:6px}
+.meter{display:grid;grid-template-columns:86px 1fr 28px;align-items:center;gap:12px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--ink2);padding:5px 0}
+.meter b{font-weight:600;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:12px}
+.bar{height:2px;background:var(--line2);border-radius:2px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--ink);border-radius:2px;transform-origin:left;animation:grow .8s var(--ease) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.place-f{margin-top:auto;padding-top:16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line2);margin-top:16px}
+
+/* rating input: segmented 1–5 */
+.rate-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.rate-row .l{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.rate-row .l small{display:block;text-transform:none;letter-spacing:0;font-weight:400;color:var(--mute);font-size:12px}
+.seg5{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--paper)}
+.seg5 input{display:none}
+.seg5 label{width:36px;height:32px;display:grid;place-items:center;border-radius:999px;cursor:pointer;font-family:var(--display);font-size:16px;color:var(--mute);transition:all .2s;margin:0;text-transform:none;letter-spacing:0}
+.seg5 label:hover{color:var(--ink);background:var(--line2)}
+.seg5 input:checked+label{background:var(--ink);color:#fff}
+.votes{margin-top:22px}
+.votes table{width:100%;border-collapse:collapse;font-size:13px}
+.votes th{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600;padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.votes td{padding:10px 4px;text-align:center;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}
+.votes td:first-child,.votes th:first-child{text-align:left}
+.votes .q{color:var(--ink2);text-align:left;font-size:14px;padding-top:0}
+
+/* ---------- wishlist ---------- */
+.wheel{background:var(--ink);color:#fff;border-radius:28px;padding:56px 28px;text-align:center;margin-bottom:34px;position:relative;overflow:hidden;isolation:isolate}
+.wheel:before{content:"";position:absolute;inset:-40%;z-index:-1;background:conic-gradient(from 0deg,transparent,rgba(216,142,164,.22),transparent 30%,rgba(181,147,95,.18),transparent 60%);animation:spin 26s linear infinite}
+.wheel:after{content:"";position:absolute;inset:1px;border-radius:27px;z-index:-1;background:radial-gradient(ellipse at center,#1d181b 0,#151214 70%)}
+@keyframes spin{to{transform:rotate(1turn)}}
+.wheel .kick{justify-content:center;color:var(--rose)}
+.wheel .kick:after{content:"";width:22px;height:1px;background:currentColor}
+.wheel .pick{font-family:var(--display);font-weight:600;font-size:clamp(38px,6.5vw,76px);line-height:1.05;letter-spacing:-.035em;min-height:1.1em;margin:18px 0 28px;transition:filter .2s,opacity .2s}
+.wheel .pick.spin{filter:blur(1.5px);opacity:.7}
+.wheel .btn{background:#fff;color:var(--ink);border-color:#fff}
+.wheel .note{color:#a99ea3;font-size:12px;margin-top:16px}
+.wish h3{font-size:26px;font-weight:600;margin:10px 0 4px;letter-spacing:-.025em}
+.wish p{margin:12px 0 0;color:var(--ink2);font-size:14.5px;line-height:1.5}
+.wish .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line2)}
+.heart.on{color:var(--accent);border-color:var(--accent)}
+.heart.on svg{fill:var(--accent)}
+
+/* ---------- friends ---------- */
+.friend{text-align:center;padding:34px 22px 24px}
+.friend .big{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;font-family:var(--display);font-size:40px;font-weight:700;color:#fff;position:relative}
+.friend .big:after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--line)}
+.friend h3{font-size:30px;font-weight:600;letter-spacing:-.025em}
+.friend .motto{color:var(--mute);margin:4px 0 0;font-size:15px}
+.stats{display:flex;justify-content:center;margin:20px 0;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.stats div{flex:1;padding:12px 4px}
+.stats div+div{border-left:1px solid var(--line2)}
+.stats b{display:block;font-family:var(--display);font-size:26px;font-weight:600;line-height:1}
+.stats small{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);font-weight:600}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(21,18,20,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;z-index:50;overflow:auto}
+.modal.open{display:flex;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}}
+.sheet{background:var(--bg);border-radius:26px;padding:34px;max-width:580px;width:100%;box-shadow:0 40px 100px -30px rgba(0,0,0,.45);position:relative;animation:up .35s var(--ease)}
+@keyframes up{from{transform:translateY(18px);opacity:0}}
+.sheet h2{font-family:var(--display);font-weight:600;font-size:38px;line-height:1.05;letter-spacing:-.03em;margin:10px 0 18px}
+.x{position:absolute;top:16px;right:16px;border:0;background:var(--line2);width:36px;height:36px;border-radius:50%;cursor:pointer;color:var(--ink2);display:grid;place-items:center}
+.x:hover{background:var(--line)}
+@media (max-width:640px){
+  .modal{padding:0;align-items:flex-end}
+  .sheet{border-radius:26px 26px 0 0;padding:28px 20px calc(28px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;animation:sheet .4s var(--ease)}
+  @keyframes sheet{from{transform:translateY(100%)}}
+  .sheet h2{font-size:32px}
+}
+form label{display:block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);font-weight:600;margin:18px 0 0}
+form input:not([type=radio]),form select,form textarea{display:block;width:100%;margin-top:8px;border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:12px 14px;font-size:15px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:400;transition:border-color .2s,box-shadow .2s}
+form textarea{min-height:100px;resize:vertical}
+form input:focus,form select:focus,form textarea:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(21,18,20,.06)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.seg input{display:none}
+.seg label{margin:0}
+.seg span{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:var(--paper);cursor:pointer;font-size:13.5px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:500;transition:all .2s}
+.seg span:hover{border-color:var(--ink)}
+.seg input:checked+span{background:var(--ink);color:#fff;border-color:var(--ink)}
+.swatch span{width:38px;height:38px;padding:0;border-radius:50%;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--line)}
+.swatch input:checked+span{box-shadow:0 0 0 2px var(--ink);border-color:var(--bg)}
+.actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:26px}
+.for-call{display:none}
+form.is-call .for-call{display:block}
+form.is-call .for-place{display:none}
+.facts{display:grid;gap:12px;margin:4px 0 24px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fact{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.fact svg{margin-top:2px;color:var(--mute)}
+.hint{font-size:13px;color:var(--ink2);background:var(--blush);border-radius:14px;padding:12px 14px;margin-top:14px}
+.subh{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);font-weight:700;margin:24px 0 10px}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,120px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:999px;font-size:13.5px;font-weight:500;transition:transform .4s var(--ease);z-index:60;white-space:nowrap}
+.toast.show{transform:translate(-50%,0)}
+footer{text-align:center;padding:0 20px 40px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.03em;color:var(--accent)}
+
+/* ---------- mobile ---------- */
+@media (max-width:760px){
+  .hero{height:300px}
+    .logo{margin-top:76px}
+    main{padding:34px 18px calc(110px + env(safe-area-inset-bottom))}
+  nav{position:fixed;top:auto;bottom:0;left:0;right:0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom);background:rgba(250,247,244,.9)}
+  nav .in{justify-content:space-around;gap:0}
+  nav button{flex-direction:column;gap:5px;padding:10px 4px 9px;font-size:9px;letter-spacing:.12em;flex:1}
+  nav button svg{display:block;width:22px;height:22px}
+  nav button:after{top:-1px;bottom:auto;left:30%;right:30%}
+  .head{margin-bottom:26px}
+  .grid{grid-template-columns:1fr}
+  .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+  .row{grid-template-columns:1fr}
+  .seg5 label{width:32px}
+}
+
+/* ---------- type tuning for Unbounded ---------- */
+.head h2{display:flex;align-items:center;gap:16px;font-weight:700;font-size:clamp(24px,3.2vw,38px);letter-spacing:-.03em;line-height:1.1}
+.mini{height:1.5em;width:auto;flex:none;overflow:visible;rotate:-8deg}
+.mini-taxi{height:1.3em}.mini-martini{height:1.7em}
+h3,.cal-top h3,.agenda h3{font-weight:600;letter-spacing:-.025em}
+.cal-top h3{font-size:24px}.agenda h3{font-size:19px}
+.place h3,.wish h3{font-size:20px;line-height:1.2}
+.chart .nm{font-size:16px;line-height:1.25}
+.friend h3{font-size:22px}
+.sheet h2{font-weight:700;font-size:28px;letter-spacing:-.03em;line-height:1.15}
+.score{font-size:36px;font-weight:600;letter-spacing:-.04em}
+.ag-d b{font-size:26px;font-weight:600}
+.day .n{font-size:14px;font-weight:500}
+.empty b{font-size:22px}
+.stats b{font-size:22px}
+.friend .big{font-size:34px;font-weight:800}
+.seg5 label{font-size:13px;font-weight:600}
+footer{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:.1em}
+.btn.pri{background:var(--ink)}
+@media (max-width:640px){
+  .head h2{font-size:24px;gap:12px}.sheet h2{font-size:24px}
+  .mini{height:1.2em}.mini-martini{height:1.5em}
+  .hero{height:400px;background:radial-gradient(70% 45% at 50% 50%,rgba(255,214,231,.7),transparent 70%),#fffafb}
+  .logo{width:90vw;top:46%}
+  .st-taxi{width:38%;left:-2%;bottom:3%}
+  .st-martini{width:21%;left:4%;top:10%}
+  .st-lipstick{width:8%;left:32%;top:15%}
+  .st-mule{width:30%;right:4%;top:17%}
+  .st-kiss{width:17%;right:30%;bottom:5%}
+  .st-liberty{width:15%;right:3%;bottom:-2%}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <filter id="stk" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="7" result="d1"/>
+    <feFlood flood-color="#ffffff"/><feComposite in2="d1" operator="in" result="white"/>
+    <feMorphology in="SourceAlpha" operator="dilate" radius="10" result="d2"/>
+    <feFlood flood-color="#d8d4cc"/><feComposite in2="d2" operator="in" result="grey"/>
+    <feGaussianBlur in="d2" stdDeviation="5" result="b"/><feOffset in="b" dy="6" result="bo"/>
+    <feFlood flood-color="#3a2a30" flood-opacity=".16"/><feComposite in2="bo" operator="in" result="sh"/>
+    <feMerge><feMergeNode in="sh"/><feMergeNode in="grey"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="chk" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#1d1a1c"/><rect width="5" height="5" fill="#fff"/><rect x="5" y="5" width="5" height="5" fill="#fff"/></pattern>
+  <linearGradient id="gPink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7eb6"/><stop offset=".55" stop-color="#e8417f"/><stop offset="1" stop-color="#b8155a"/></linearGradient>
+  <linearGradient id="gDrink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd3e2"/><stop offset="1" stop-color="#f490b5"/></linearGradient>
+  <linearGradient id="gTaxi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd94a"/><stop offset="1" stop-color="#f2b705"/></linearGradient>
+  <linearGradient id="gLib" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5f9f8a"/><stop offset=".5" stop-color="#8fcab4"/><stop offset="1" stop-color="#5a9783"/></linearGradient>
+
+  <!-- TAXI -->
+  <symbol id="s-taxi" viewBox="-14 -14 328 178">
+    <rect x="132" y="14" width="44" height="17" rx="4" fill="#fff" stroke="#1d1a1c" stroke-width="2.5"/>
+    <text x="154" y="27" font-family="Arial,sans-serif" font-weight="900" font-size="11" text-anchor="middle" fill="#1d1a1c">TAXI</text>
+    <path d="M18 112V84c0-10 7-15 18-16l46-5 26-28c4-4 9-6 15-6h76c7 0 12 2 17 7l26 27 34 4c12 2 18 8 18 18v27c0 5-3 8-8 8h-26a25 25 0 00-49 0H100a25 25 0 00-49 0H26c-5 0-8-3-8-8z" fill="url(#gTaxi)"/>
+    <path d="M96 64l22-24c2-2 4-3 7-3h29v27z" fill="#bfe2f0"/><path d="M160 37h31c3 0 5 1 7 3l23 24h-61z" fill="#bfe2f0"/>
+    <path d="M104 58l10-11M170 56l10-11" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+    <rect x="22" y="86" width="268" height="10" fill="url(#chk)"/>
+    <path d="M157 64v50" stroke="#c99a00" stroke-width="2.5"/>
+    <rect x="168" y="72" width="16" height="4" rx="2" fill="#b08600"/><rect x="108" y="72" width="16" height="4" rx="2" fill="#b08600"/>
+    <text x="214" y="112" font-family="Arial,sans-serif" font-weight="800" font-size="10" fill="#1d1a1c">N.Y.C.</text>
+    <rect x="282" y="74" width="12" height="8" rx="3" fill="#fff4c2"/><rect x="18" y="74" width="8" height="8" rx="2" fill="#e8475a"/>
+    <circle cx="76" cy="120" r="21" fill="#1d1a1c"/><circle cx="76" cy="120" r="9" fill="#b9b5b0"/>
+    <circle cx="232" cy="120" r="21" fill="#1d1a1c"/><circle cx="232" cy="120" r="9" fill="#b9b5b0"/>
+  </symbol>
+
+  <!-- FLUFFY MULE -->
+  <symbol id="s-mule" viewBox="-14 -14 228 188">
+    <path d="M160 92l13-4-3 66h-5z" fill="#c9577c"/>
+    <path d="M14 132c1-9 12-14 28-16l80-12c27-4 41-18 50-30l13 6c-6 24-26 40-56 46l-86 16c-18 3-30-1-29-10z" fill="#e57fa2"/>
+    <path d="M30 124l90-13c22-4 36-14 46-28" stroke="#f9c7d7" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g fill="#f7c4d6">
+      <circle cx="62" cy="102" r="26"/><circle cx="40" cy="108" r="18"/><circle cx="86" cy="104" r="20"/><circle cx="58" cy="80" r="17"/><circle cx="80" cy="84" r="15"/><circle cx="38" cy="90" r="14"/>
+    </g>
+    <g fill="#fbe0ea">
+      <circle cx="56" cy="92" r="12"/><circle cx="76" cy="96" r="10"/><circle cx="44" cy="100" r="9"/>
+    </g>
+    <g stroke="#f4a9c2" stroke-width="3" stroke-linecap="round">
+      <path d="M22 96l-10-6M26 84l-8-10M44 70l-4-12M64 64l2-13M86 70l8-10M102 88l12-4M106 106l13 2M30 120l-12 4"/>
+    </g>
+  </symbol>
+
+  <!-- LIBERTY -->
+  <symbol id="s-liberty" viewBox="-14 -14 148 308">
+    <path d="M70 14c-6 6-8 12-4 18 3 4 10 4 13-1 4-6 0-12-9-17z" fill="#ffb547"/><path d="M71 20c-2 3-2 6 0 8 2 1 4 0 5-2 1-3-1-5-5-6z" fill="#fff1c2"/>
+    <rect x="64" y="32" width="16" height="12" rx="2" fill="#4f8f7b"/>
+    <path d="M66 44h12l-2 66h-10z" fill="url(#gLib)"/>
+    <g fill="#5f9f8a"><path d="M52 84l-6-18 9 14z"/><path d="M58 80l-1-20 5 19z"/><path d="M64 80l6-18-2 20z"/><path d="M48 92l-14-8 14 4z"/></g>
+    <circle cx="56" cy="94" r="11" fill="#86c3ad"/>
+    <path d="M40 210c-6-36 0-70 6-90 3-10 7-14 12-14 8 0 16 6 18 16 6 26 8 56 2 88z" fill="url(#gLib)"/>
+    <path d="M50 130c4 20 4 48 2 78M64 124c3 24 4 52 1 84" stroke="#4f8f7b" stroke-width="2" fill="none" opacity=".6"/>
+    <rect x="30" y="128" width="16" height="26" rx="2" transform="rotate(-14 38 141)" fill="#6fae98"/>
+    <path d="M30 210h64v8H30z" fill="#9a7a62"/>
+    <path d="M24 218h76l-6 62H30z" fill="#b8936f"/>
+    <path d="M38 232h10v22H38zM57 232h10v22H57zM76 232h10v22H76z" fill="#ffc96b"/>
+    <path d="M18 280h88v10H18z" fill="#8c6a55"/>
+  </symbol>
+
+  <!-- KISS -->
+  <symbol id="s-kiss" viewBox="-14 -14 188 128">
+    <path d="M8 50C26 22 48 10 70 26c5 4 8 6 10 6s5-2 10-6c22-16 44-4 62 24-26 4-46 4-72 6C54 54 34 54 8 50z" fill="#e0457f"/>
+    <path d="M8 52c26 6 46 8 72 8 26 0 46-2 72-8-14 30-38 44-72 44S22 82 8 52z" fill="#d23571"/>
+    <g stroke="#f7a1c1" stroke-width="2.2" stroke-linecap="round" opacity=".85" fill="none">
+      <path d="M30 34c4 6 6 10 6 14M48 24c2 8 4 14 3 22M98 22c-2 8-2 16 0 24M120 30c-4 6-6 12-6 18M34 66c6 8 10 12 12 16M60 70c2 8 2 14 1 20M100 70c-2 8-2 14-1 20M126 64c-6 8-10 14-12 18"/>
+    </g>
+    <path d="M24 50c18 4 36 6 56 6 22 0 40-2 58-6" stroke="#f7a1c1" stroke-width="2" fill="none" opacity=".6"/>
+  </symbol>
+
+  <!-- MARTINI -->
+  <symbol id="s-martini" viewBox="-14 -14 228 288">
+    <path d="M97 132h6v96h-6z" fill="#dcdbe3"/><path d="M99 134h1.5v92H99z" fill="#fff"/>
+    <ellipse cx="100" cy="234" rx="52" ry="10" fill="#e6e5ec"/><ellipse cx="100" cy="232" rx="40" ry="5" fill="#fff" opacity=".7"/>
+    <path d="M18 32h164L100 134z" fill="#ffffff" opacity=".55"/>
+    <path d="M30 46h140L100 128z" fill="url(#gDrink)"/>
+    <path d="M30 46h140" stroke="#fff" stroke-width="3" opacity=".8"/>
+    <path d="M18 32h164L100 134z" fill="none" stroke="#cfcbd3" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M44 40l44 60" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+    <g fill="#fff">
+      <circle cx="60" cy="31" r="2.6"/><circle cx="76" cy="30" r="2.2"/><circle cx="92" cy="31" r="2.6"/><circle cx="108" cy="30" r="2.2"/><circle cx="124" cy="31" r="2.6"/><circle cx="140" cy="30" r="2.2"/><circle cx="156" cy="31" r="2.6"/>
+    </g>
+    <circle cx="34" cy="40" r="32" fill="#7fbf4a"/><circle cx="34" cy="40" r="28" fill="#fde7c9"/><circle cx="34" cy="40" r="25" fill="#ff8e93"/>
+    <g stroke="#fde7c9" stroke-width="2"><path d="M34 15v50M9 40h50M16 22l36 36M52 22L16 58"/></g>
+    <circle cx="34" cy="40" r="4" fill="#fde7c9"/>
+  </symbol>
+
+  <!-- LIPSTICK -->
+  <symbol id="s-lipstick" viewBox="-14 -14 88 188">
+    <rect x="8" y="90" width="44" height="70" rx="5" fill="#1d1a1c"/><rect x="8" y="80" width="44" height="14" rx="3" fill="#d6b37a"/>
+    <rect x="13" y="48" width="34" height="34" rx="3" fill="#e5c38a"/>
+    <path d="M17 50V20c0-8 8-16 20-22l6 10v42z" fill="#d81b60"/><path d="M22 48V22c0-5 4-10 10-14" stroke="#ff7fb0" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+</defs>
+</svg>
+
+<header class="hero">
+  <div class="me" id="meBox"></div>
+  <svg class="st st-taxi" viewBox="-14 -14 328 178" aria-hidden="true"><use href="#s-taxi" x="-14" y="-14" width="328" height="178" filter="url(#stk)"/></svg><svg class="st st-martini" viewBox="-14 -14 228 288" aria-hidden="true"><use href="#s-martini" x="-14" y="-14" width="228" height="288" filter="url(#stk)"/></svg><svg class="st st-lipstick" viewBox="-14 -14 88 188" aria-hidden="true"><use href="#s-lipstick" x="-14" y="-14" width="88" height="188" filter="url(#stk)"/></svg><svg class="st st-mule" viewBox="-14 -14 228 188" aria-hidden="true"><use href="#s-mule" x="-14" y="-14" width="228" height="188" filter="url(#stk)"/></svg><svg class="st st-kiss" viewBox="-14 -14 188 128" aria-hidden="true"><use href="#s-kiss" x="-14" y="-14" width="188" height="128" filter="url(#stk)"/></svg><svg class="st st-liberty" viewBox="-14 -14 148 308" aria-hidden="true"><use href="#s-liberty" x="-14" y="-14" width="148" height="308" filter="url(#stk)"/></svg>
+  <h1 class="logo" aria-label="Martini Society"><svg viewBox="0 0 1200 380">
+    <defs><filter id="stkL" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="14" result="d1"/><feFlood flood-color="#fff"/><feComposite in2="d1" operator="in" result="w"/>
+      <feMorphology in="SourceAlpha" operator="dilate" radius="20" result="d2"/><feFlood flood-color="#d8d4cc"/><feComposite in2="d2" operator="in" result="g"/>
+      <feGaussianBlur in="d2" stdDeviation="8" result="b"/><feOffset in="b" dy="10" result="bo"/><feFlood flood-color="#3a2a30" flood-opacity=".14"/><feComposite in2="bo" operator="in" result="sh"/>
+      <feMerge><feMergeNode in="sh"/><feMergeNode in="g"/><feMergeNode in="w"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <g filter="url(#stkL)">
+      <text class="l1" x="600" y="225" text-anchor="middle" fill="url(#gPink)">MARTINI</text>
+      <text class="l2" x="617" y="330" text-anchor="middle" fill="#1d1a1c">SOCIETY</text>
+    </g>
+  </svg></h1>
+</header>
+
+<nav><div class="in" id="nav">
+  <button data-t="cal"><svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Agenda</button>
+  <button data-t="places"><svg class="i" viewBox="0 0 24 24"><path d="M4 4.5h16L12 13z"/><path d="M12 13v7M8 20h8M16.5 7.5l2.5-3"/></svg>Locali</button>
+  <button data-t="wish"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l2.2 5.6L20 9.3l-4.4 3.9 1.3 5.8L12 16l-4.9 3 1.3-5.8L4 9.3l5.8-.7z"/></svg>Da provare</button>
+  <button data-t="friends"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M15.5 4.8a3.5 3.5 0 010 6.4M18 14.8c1.8.7 3 2.4 3.5 5.2"/></svg>Amiche</button>
+</div></nav>
+
+<main id="view"></main>
+<footer>xoxo</footer>
+
+<div class="modal" id="modal" onclick="if(event.target===this&&!this.dataset.lock)closeModal()">
+  <div class="sheet"><button class="x" onclick="closeModal()" aria-label="Chiudi"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="modalBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+/* ================= icons ================= */
+const ic=d=>`<svg class="i" viewBox="0 0 24 24">${d}</svg>`;
+const I={
+  plus:ic('<path d="M12 5v14M5 12h14"/>'),
+  left:ic('<path d="M15 6l-6 6 6 6"/>'), right:ic('<path d="M9 6l6 6-6 6"/>'),
+  pin:ic('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>'),
+  clock:ic('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  note:ic('<path d="M5 4.5h14v15H5z"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/>'),
+  users:ic('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M15.5 4.8a3.5 3.5 0 010 6.4M18 14.8c1.8.7 3 2.4 3.5 5.2"/>'),
+  msg:ic('<path d="M20.5 12a8.5 8.5 0 01-12.6 7.4L3.5 20.5l1.1-4.2A8.5 8.5 0 1120.5 12z"/>'),
+  phone:ic('<path d="M5 4h3.5l1.8 4.5-2.3 1.4a11 11 0 005.1 5.1l1.4-2.3L19 14.5V18a2 2 0 01-2 2A14 14 0 013 6a2 2 0 012-2z"/>'),
+  video:ic('<rect x="3" y="6.5" width="12.5" height="11" rx="2.5"/><path d="M15.5 10.5l5.5-3v9l-5.5-3z"/>'),
+  calplus:ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>'),
+  check:ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  heart:ic('<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0112 7.3a4.3 4.3 0 017.5 2.5C19.5 15.4 12 20 12 20z"/>'),
+  trash:ic('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>'),
+  edit:ic('<path d="M15 4.5l4.5 4.5L9 19.5H4.5V15z"/>'),
+  sparkle:ic('<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/>'),
+  link:ic('<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>'),
+  map:ic('<path d="M9 4.5L3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5z"/><path d="M9 4.5v13M15 6.5v13"/>'),
+};
+
+/* ================= utils ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>iso(new Date());
+const parseISO=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const MONTHS=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const DOW=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+const fmtDate=s=>s?parseISO(s).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}):'';
+const fmtShort=s=>s?parseISO(s).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'}):'';
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const safeUrl=u=>/^(https?:|facetime:|facetime-audio:|whatsapp:)/i.test(u||'')?u:'#';
+const digits=p=>String(p||'').replace(/\D/g,'');
+const waNum=p=>{let d=digits(p);if(d.startsWith('00'))d=d.slice(2);if(d.length===10&&d.startsWith('3'))d='39'+d;return d};
+const telNum=p=>{const s=String(p||'').trim();return s.startsWith('+')?'+'+digits(s):'+'+waNum(s)};
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2400)}
+
+/* ================= state ================= */
+let S={friends:[],events:[],places:[],wishlist:[],columns:[]};
+let me=ls.get('ms_me');
+let tab=ls.get('ms_tab')||'cal';if(!['cal','places','wish','friends'].includes(tab))tab='cal';
+let cur=new Date();cur.setDate(1);
+let placeSort='tot',placeFilter='';
+let lastTab=null;
+
+const friend=id=>S.friends.find(f=>f.id===id);
+const fname=id=>friend(id)?.name||'Qualcuna';
+const avatar=id=>{const f=friend(id);return f?`<span class="av" style="background:${esc(f.color)}" title="${esc(f.name)}">${esc((f.name||'?')[0].toUpperCase())}</span>`:''};
+
+/* ---- storage: server locale (python) oppure Supabase (GitHub Pages) ---- */
+const CFG=window.MARTINI_CONFIG||{};
+const REMOTE=!!(CFG.supabaseUrl&&CFG.supabaseAnonKey);
+const EMPTY=()=>({friends:[],events:[],places:[],wishlist:[],columns:[]});
+const newId=()=>(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/-/g,'').slice(0,12);
+const sbBase=()=>CFG.supabaseUrl.replace(/\/+$/,'')+'/rest/v1';
+const sbHeaders=(extra={})=>({apikey:CFG.supabaseAnonKey,...(CFG.supabaseAnonKey.startsWith('sb_')?{}:{Authorization:'Bearer '+CFG.supabaseAnonKey}),'x-club-key':ls.get('ms_key')||'','Content-Type':'application/json',...extra});
+async function sb(path,opt={}){
+  const r=await fetch(sbBase()+path,{cache:'no-store',...opt,headers:sbHeaders(opt.headers)});
+  if(!r.ok){const e=new Error('HTTP '+r.status);e.status=r.status;throw e}
+  return r.status===204?null:r.json().catch(()=>null);
+}
+async function checkKey(){return !!(await sb('/rpc/is_member',{method:'POST',body:'{}'}))}
+async function loadState(){
+  if(!REMOTE){const r=await fetch('/api/state',{cache:'no-store'});if(!r.ok)throw new Error(r.status);return r.json()}
+  const rows=await sb('/items?select=id,col,data&order=created_at');
+  const s=EMPTY();(rows||[]).forEach(x=>{if(s[x.col])s[x.col].push({...x.data,id:x.id})});return s;
+}
+async function send(method,col,body,id){
+  if(!REMOTE){
+    const r=await fetch(`/api/${col}${id?'/'+id:''}`,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+    if(!r.ok)throw new Error(r.status);return r.json().catch(()=>null);
+  }
+  if(method==='POST'){const obj={...body,id:newId(),createdAt:new Date().toISOString()};
+    await sb('/items',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({id:obj.id,col,data:obj})});return obj}
+  if(method==='PUT'){await sb('/items?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({data:body,updated_at:new Date().toISOString()})});return body}
+  if(method==='DELETE'){await sb('/items?id=eq.'+encodeURIComponent(id),{method:'DELETE'});return{ok:true}}
+}
+async function refresh(){
+  try{S=await loadState();render()}
+  catch(e){if(e.status===401||e.status===403)return askKey(true);toast(REMOTE?'Database non raggiungibile':'Server non raggiungibile')}
+}
+async function api(method,col,body,id){
+  try{const out=await send(method,col,body,id);await refresh();return out}
+  catch(e){if(e.status===401||e.status===403){askKey(true);return null}toast('Non sono riuscita a salvare');return null}
+}
+const put=(col,obj)=>{const{id,...rest}=obj;return api('PUT',col,{...rest,id},id)};
+function askKey(wrong){
+  modal(`<div style="text-align:center;padding:10px 0">
+    <div class="kick" style="justify-content:center">Martini Society</div>
+    <h2 style="font-size:46px;margin-top:14px">Solo su invito</h2>
+    <p class="muted" style="margin:-6px 0 0">${wrong?'Parola d’ordine sbagliata. Riprova.':'Scrivi la parola d’ordine del club per entrare.'}</p>
+    <form id="kf"><input name="k" type="password" required autofocus placeholder="parola d’ordine" style="text-align:center;margin-top:24px">
+    <div class="actions" style="justify-content:center"><button class="btn pri">Entra</button></div></form></div>`,true);
+  $('#kf').onsubmit=async e=>{e.preventDefault();ls.set('ms_key',e.target.k.value.trim());
+    try{if(await checkKey()){closeModal();toast('Benvenuta nel club');boot()}else askKey(true)}
+    catch(err){toast('Database non raggiungibile')}};
+}
+
+/* ================= modal ================= */
+function modal(html,lock){const m=$('#modal');$('#modalBody').innerHTML=html;m.classList.add('open');
+  if(lock)m.dataset.lock='1';else delete m.dataset.lock;$('.x').style.display=lock?'none':'';document.body.style.overflow='hidden'}
+function closeModal(){const m=$('#modal');m.classList.remove('open');delete m.dataset.lock;document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').dataset.lock)closeModal()});
+
+/* ================= render root ================= */
+function render(){
+  const f=friend(me);
+  $('#meBox').innerHTML=`${f?avatar(me):''}<select id="meSel" aria-label="Chi sei?"><option value="">Chi sei?</option>${S.friends.map(x=>`<option value="${x.id}" ${x.id===me?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`;
+  $('#meSel').onchange=e=>{me=e.target.value||null;ls.set('ms_me',me||'');render();if(me)toast(`Ciao ${fname(me)}`)};
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  const v=$('#view');
+  ({cal:renderCal,places:renderPlaces,wish:renderWish,friends:renderFriends}[tab]||renderCal)(v);
+  if(lastTab!==tab){v.classList.remove('reveal');void v.offsetWidth;v.classList.add('reveal');lastTab=tab}
+}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;ls.set('ms_tab',tab);render();
+  if(window.innerWidth>760)window.scrollTo({top:$('nav').offsetTop,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'})});
+function needMe(){if(!me){toast('Prima scegli chi sei, in alto a destra');return true}return false}
+const HEADICON={cal:'taxi',places:'martini',wish:'mule',friends:'kiss'};
+const mini=n=>{const vb={taxi:'-14 -14 328 178',martini:'-14 -14 228 288',mule:'-14 -14 228 188',kiss:'-14 -14 188 128'}[n];const[x,y,w,h]=vb.split(' ');return `<svg class="mini mini-${n}" viewBox="${vb}" aria-hidden="true"><use href="#s-${n}" x="${x}" y="${y}" width="${w}" height="${h}" filter="url(#stk)"/></svg>`};
+const head=(k,t,p,actions='')=>`<div class="head"><h2>${HEADICON[tab]?mini(HEADICON[tab]):''}<span>${t}</span></h2>${actions}</div>`;
+
+/* ================= AGENDA ================= */
+const TYPES=[{k:'serata',l:'Serata',c:'var(--accent)'},{k:'appuntamento',l:'Appuntamento',c:'var(--champ)'},{k:'chiamata',l:'Chiamata',c:'var(--violet)'}];
+const TYPE=Object.fromEntries(TYPES.map(t=>[t.k,t]));
+const tdot=t=>`<i class="dot" style="background:${(TYPE[t]||TYPES[0]).c}"></i>`;
+
+function renderCal(v){
+  const y=cur.getFullYear(),m=cur.getMonth();
+  const start=new Date(y,m,1);start.setDate(1-((start.getDay()+6)%7));
+  const cells=[];
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    if(i>=35&&d.getMonth()!==m)break;
+    const k=iso(d);
+    const evs=S.events.filter(e=>e.date===k).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    cells.push(`<div class="day ${d.getMonth()!==m?'out':''} ${k===today()?'today':''} ${i%7>4?'wk':''}" data-day="${k}">
+      <span class="n">${d.getDate()}</span><div class="evs">
+      ${evs.map(e=>`<div class="ev" data-ev="${e.id}">${tdot(e.type)}<span>${e.time?`<time>${esc(e.time)}</time> `:''}${esc(e.title)}</span></div>`).join('')}</div>
+    </div>`);
+  }
+  const up=S.events.filter(e=>e.date>=today()).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).slice(0,6);
+  v.innerHTML=head('01 — Agenda','Cosa facciamo stasera?','Serate, appuntamenti e chiamate tra di noi. Tocca un giorno per aggiungere un piano.',
+    `<button class="btn pri" onclick="eventForm()">${I.plus} Nuovo piano</button>`)+`
+  <div class="cal-wrap">
+    <div>
+      <div class="cal-top">
+        <h3>${MONTHS[m]}<span>${y}</span></h3>
+        <div class="btns"><button class="btn sm ghost" onclick="cur=new Date();cur.setDate(1);render()">Oggi</button>
+        <button class="btn icon" onclick="cur.setMonth(cur.getMonth()-1);render()" aria-label="Mese precedente">${I.left}</button>
+        <button class="btn icon" onclick="cur.setMonth(cur.getMonth()+1);render()" aria-label="Mese successivo">${I.right}</button></div>
+      </div>
+      <div class="cal">${DOW.map(d=>`<div class="dow">${d}</div>`).join('')}${cells.join('')}</div>
+      <div class="legend">${TYPES.map(t=>`<span class="tag">${tdot(t.k)} ${t.l}</span>`).join('')}</div>
+    </div>
+    <aside class="agenda">
+      <h3>In agenda</h3>
+      ${up.length?up.map(e=>{const d=parseISO(e.date);return`<div class="ag" data-ev="${e.id}">
+        <div class="ag-d"><b>${d.getDate()}</b><small>${MONTHS[d.getMonth()].slice(0,3)}</small></div>
+        <div><span class="tag">${tdot(e.type)} ${(TYPE[e.type]||TYPES[0]).l}${e.time?' · '+esc(e.time):''}</span>
+        <div class="ag-t">${esc(e.title)}</div>
+        ${e.place&&e.type!=='chiamata'?`<div class="muted small">${esc(e.place)}</div>`:''}
+        ${(e.going||[]).length?`<div class="avs" style="margin-top:8px">${e.going.map(avatar).join('')}</div>`:''}</div></div>`}).join('')
+      :`<p class="muted" style="font-size:15px;border-top:1px solid var(--line2);padding-top:16px">Agenda vuota. Inaccettabile.</p>`}
+    </aside>
+  </div>`;
+  v.querySelectorAll('[data-ev]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();eventDetail(el.dataset.ev)}));
+  v.querySelectorAll('[data-day]').forEach(el=>el.addEventListener('click',()=>{
+    const evs=S.events.filter(e=>e.date===el.dataset.day);
+    if(window.innerWidth<=640&&evs.length)dayList(el.dataset.day);else eventForm({},el.dataset.day)}));
+}
+function dayList(k){
+  const evs=S.events.filter(e=>e.date===k).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  modal(`<h2>${cap(fmtDate(k))}</h2>
+  ${evs.map(e=>`<div class="ag" style="grid-template-columns:1fr" onclick="eventDetail('${e.id}')"><div><span class="tag">${tdot(e.type)} ${(TYPE[e.type]||TYPES[0]).l}${e.time?' · '+esc(e.time):''}</span><div class="ag-t">${esc(e.title)}</div></div></div>`).join('')}
+  <div class="actions"><button class="btn pri" onclick="eventForm({},'${k}')">${I.plus} Aggiungi</button></div>`);
+}
+function eventForm(ev={},date){
+  if(needMe())return;
+  const e={type:'serata',date:date||today(),time:'21:00',title:'',place:'',platform:'whatsapp',link:'',notes:'',...ev};
+  modal(`<h2>${ev.id?'Ritocchiamo il piano':'Che si fa?'}</h2>
+  <form id="f">
+    <div class="seg">${TYPES.map(t=>`<label><input type="radio" name="type" value="${t.k}" ${e.type===t.k?'checked':''}><span>${t.l}</span></label>`).join('')}</div>
+    <label>Titolo<input name="title" required value="${esc(e.title)}" placeholder="Aperitivo sul rooftop"></label>
+    <div class="row"><label>Data<input type="date" name="date" required value="${esc(e.date)}"></label><label>Ora<input type="time" name="time" value="${esc(e.time)}"></label></div>
+    <label class="for-place">Dove<input name="place" value="${esc(e.place)}" placeholder="Locale, indirizzo…"></label>
+    <div class="for-call">
+      <label>Piattaforma</label>
+      <div class="seg"><label><input type="radio" name="platform" value="whatsapp" ${e.platform!=='facetime'?'checked':''}><span>WhatsApp</span></label><label><input type="radio" name="platform" value="facetime" ${e.platform==='facetime'?'checked':''}><span>FaceTime</span></label></div>
+      <label>Link chiamata di gruppo · facoltativo<input name="link" value="${esc(e.link)}" placeholder="https://call.whatsapp.com/…"></label>
+    </div>
+    <label>Note<textarea name="notes" placeholder="Dress code, chi prenota, chi porta cosa…">${esc(e.notes)}</textarea></label>
+    <div class="actions"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">Salva</button></div>
+  </form>`);
+  const f=$('#f');
+  const sync=()=>f.classList.toggle('is-call',f.elements['type'].value==='chiamata');
+  f.addEventListener('change',sync);sync();
+  f.onsubmit=async x=>{
+    x.preventDefault();
+    const d=Object.fromEntries(new FormData(f));
+    if(ev.id){await put('events',{...e,...d});toast('Piano aggiornato');eventDetail(ev.id)}
+    else{await api('POST','events',{...e,...d,createdBy:me,going:[me]});closeModal();toast('Aggiunto in agenda')}
+  };
+}
+function eventDetail(id){
+  const e=S.events.find(x=>x.id===id);if(!e)return;
+  const T=TYPE[e.type]||TYPES[0];const going=e.going||[];const iGo=me&&going.includes(me);
+  let call='';
+  if(e.type==='chiamata'){
+    const others=S.friends.filter(f=>f.id!==me&&f.phone);
+    call=`<div class="subh">Chiama</div><div class="btns">
+      ${e.link?`<a class="btn acc" href="${esc(safeUrl(e.link))}" target="_blank" rel="noopener">${I.phone} Entra nella chiamata</a>`:''}
+      ${others.map(f=>e.platform==='facetime'
+        ?`<a class="btn sm" href="facetime://${esc(telNum(f.phone))}">${I.video} ${esc(f.name)}</a>`
+        :`<a class="btn sm" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener">${I.msg} ${esc(f.name)}</a>`).join('')}
+    </div>
+    ${!e.link&&!others.length?`<div class="hint">Aggiungi i numeri nella sezione Amiche per chiamare con un tocco, oppure incolla il link della chiamata di gruppo.</div>`:''}`;
+  }
+  modal(`<span class="tag">${tdot(e.type)} ${T.l}${e.type==='chiamata'?' · '+(e.platform==='facetime'?'FaceTime':'WhatsApp'):''}</span>
+  <h2>${esc(e.title)}</h2>
+  <div class="facts">
+    <div class="fact">${I.clock}<div>${cap(fmtDate(e.date))}${e.time?` · ore ${esc(e.time)}`:''}</div></div>
+    ${e.place&&e.type!=='chiamata'?`<div class="fact">${I.pin}<div>${esc(e.place)} · <a href="https://www.google.com/maps/search/${encodeURIComponent(e.place)}" target="_blank" rel="noopener">mappa</a></div></div>`:''}
+    ${e.notes?`<div class="fact">${I.note}<div style="white-space:pre-wrap">${esc(e.notes)}</div></div>`:''}
+    <div class="fact">${I.users}<div>${going.length?going.map(g=>esc(fname(g))).join(', '):'<span class="muted">Ancora nessuna conferma</span>'}</div></div>
+  </div>
+  <div class="btns">
+    <button class="btn ${iGo?'':'pri'}" onclick="rsvp('${e.id}')">${iGo?I.check+' Ci sono':'Ci sono'}</button>
+    <a class="btn" href="https://wa.me/?text=${encodeURIComponent(waText(e))}" target="_blank" rel="noopener">${I.msg} Invia sul gruppo</a>
+    <button class="btn" onclick="downloadICS('${e.id}')">${I.calplus} Nel mio calendario</button>
+  </div>
+  ${call}
+  <div class="actions" style="justify-content:space-between">
+    <button class="btn sm ghost danger" onclick="delEvent('${e.id}')">${I.trash} Elimina</button>
+    <button class="btn sm" onclick="eventForm(S.events.find(x=>x.id==='${e.id}'))">${I.edit} Modifica</button>
+  </div>`);
+}
+async function rsvp(id){
+  if(needMe())return;
+  const e=S.events.find(x=>x.id===id);const g=new Set(e.going||[]);
+  g.has(me)?g.delete(me):g.add(me);
+  await put('events',{...e,going:[...g]});eventDetail(id);
+}
+async function delEvent(id){if(!confirm('Eliminiamo questo piano?'))return;await api('DELETE','events',null,id);closeModal();toast('Piano eliminato')}
+function waText(e){
+  const em={serata:'🍸',appuntamento:'💄',chiamata:'📞'}[e.type]||'✨';
+  return `${em} *${e.title}*\n📅 ${fmtDate(e.date)}${e.time?' · ore '+e.time:''}`+
+    (e.place&&e.type!=='chiamata'?`\n📍 ${e.place}`:'')+(e.link?`\n🔗 ${e.link}`:'')+(e.notes?`\n📝 ${e.notes}`:'')+
+    `\n\nCi sei? Conferma su Martini Society 💋`;
+}
+function downloadICS(id){
+  const e=S.events.find(x=>x.id===id);if(!e)return;
+  const icsEsc=s=>String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/[,;]/g,m=>'\\'+m);
+  const d=e.date.replace(/-/g,'');
+  const now=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const when=e.time?`DTSTART:${d}T${e.time.replace(':','')}00\r\nDURATION:PT${e.type==='chiamata'?'1':'3'}H`:`DTSTART;VALUE=DATE:${d}`;
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Martini Society//IT','BEGIN:VEVENT',`UID:${e.id}@martini-society`,`DTSTAMP:${now}`,when,
+    `SUMMARY:${icsEsc(e.title)}`,e.place?`LOCATION:${icsEsc(e.place)}`:'',
+    `DESCRIPTION:${icsEsc([e.notes,e.link].filter(Boolean).join('\n'))}`,
+    'BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY','DESCRIPTION:Tra un\'ora!','END:VALARM','END:VEVENT','END:VCALENDAR'].filter(Boolean).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));
+  a.download=(e.title.replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-')||'evento')+'.ics';a.click();
+}
+
+/* ================= LOCALI ================= */
+const CATS=[{k:'cibo',l:'Cibo',s:'Cibo'},{k:'drink',l:'Drink',s:'Drink'},{k:'prezzo',l:'Prezzo',s:'€',h:'5 = vale ogni euro'},{k:'gente',l:'Gente',s:'Gente'},{k:'musica',l:'Musica',s:'Musica'},{k:'vibe',l:'Atmosfera',s:'Vibe'},{k:'servizio',l:'Servizio',s:'Serv.'}];
+const KINDS=['Ristorante','Cocktail bar','Wine bar','Club','Brunch','Rooftop','Altro'];
+function stats(p){
+  const rs=Object.values(p.ratings||{});const o={n:rs.length,again:rs.filter(r=>r.again==='si').length};
+  CATS.forEach(c=>{o[c.k]=avg(rs.map(r=>+r[c.k]).filter(Boolean))});
+  o.tot=avg(CATS.map(c=>o[c.k]).filter(Boolean));return o;
+}
+function renderPlaces(v){
+  const all=S.places.map(p=>({p,s:stats(p)}));
+  const list=all.filter(x=>!placeFilter||x.p.kind===placeFilter)
+    .sort((a,b)=>placeSort==='recent'?(b.p.visited||'').localeCompare(a.p.visited||''):b.s[placeSort]-a.s[placeSort]);
+  const rated=all.filter(x=>x.s.n);
+  const best=k=>rated.filter(x=>x.s[k]).sort((a,b)=>b.s[k]-a.s[k])[0];
+  const awards=[['tot','La regina'],['drink','Miglior cocktail'],['cibo','Si mangia da dio'],['prezzo','Il colpaccio'],['musica','Si balla'],['gente','Bella gente']]
+    .map(([k,l])=>{const b=best(k);return b?`<div class="chart"><div class="lbl">${l}</div><div class="nm">${esc(b.p.name)}</div><div class="v">${b.s[k].toFixed(1)} / 5</div></div>`:''}).join('');
+  v.innerHTML=head('02 — Locali','I nostri locali','Ogni posto nuovo, ognuna dà il suo voto. La media decide.',
+    `<div class="filters">
+      <select class="select" onchange="placeFilter=this.value;render()"><option value="">Tutti i tipi</option>${KINDS.map(k=>`<option ${placeFilter===k?'selected':''}>${k}</option>`).join('')}</select>
+      <select class="select" onchange="placeSort=this.value;render()">
+        ${[['tot','Voto medio'],['recent','Più recenti'],...CATS.map(c=>[c.k,c.l])].map(([k,l])=>`<option value="${k}" ${placeSort===k?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <button class="btn pri" onclick="placeForm()">${I.plus} Nuovo locale</button>
+    </div>`)+`
+  ${awards?`<div class="charts">${awards}</div>`:''}
+  ${list.length?`<div class="grid">${list.map(({p,s})=>`
+    <article class="card place" data-p="${p.id}">
+      <div class="place-h"><div><span class="tag">${esc(p.kind||'Locale')}${p.zone?' · '+esc(p.zone):''}</span><h3>${esc(p.name)}</h3></div>
+      <div class="score">${s.n?s.tot.toFixed(1):'—'}<small>su 5</small></div></div>
+      ${CATS.map(c=>`<div class="meter"><span>${c.l}</span><div class="bar"><span style="width:${s[c.k]/5*100}%"></span></div><b>${s[c.k]?s[c.k].toFixed(1):'—'}</b></div>`).join('')}
+      <div class="place-f"><span class="muted small">${fmtShort(p.visited)}</span>
+      <span class="small"><span class="avs" style="vertical-align:middle;margin-right:6px">${Object.keys(p.ratings||{}).map(avatar).join('')}</span>${s.n?`${s.again}/${s.n} ci tornerebbero`:'Da votare'}</span></div>
+    </article>`).join('')}</div>`
+  :`<div class="empty"><b>Ancora nessun locale.</b></div>`}`;
+  v.querySelectorAll('[data-p]').forEach(el=>el.addEventListener('click',()=>placeDetail(el.dataset.p)));
+}
+function placeForm(p={}){
+  if(needMe())return;
+  const x={name:'',kind:'Cocktail bar',zone:'',visited:today(),link:'',...p};
+  modal(`<h2>${p.id?esc(p.name):'Dove siamo state?'}</h2>
+  <form id="f">
+    <label>Nome<input name="name" required value="${esc(x.name)}"></label>
+    <div class="row"><label>Tipo<select name="kind">${KINDS.map(k=>`<option ${x.kind===k?'selected':''}>${k}</option>`).join('')}</select></label>
+    <label>Zona<input name="zone" value="${esc(x.zone)}" placeholder="Brera, Navigli…"></label></div>
+    <div class="row"><label>Data<input type="date" name="visited" value="${esc(x.visited)}"></label>
+    <label>Link<input name="link" value="${esc(x.link)}" placeholder="Instagram, sito…"></label></div>
+    <div class="actions"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">${p.id?'Salva':'Avanti, votiamo'}</button></div>
+  </form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    if(p.id){await put('places',{...x,...d});placeDetail(p.id)}
+    else{const n=await api('POST','places',{...x,...d,ratings:{},addedBy:me});if(n)placeDetail(n.id)}};
+}
+function placeDetail(id){
+  const p=S.places.find(x=>x.id===id);if(!p)return;
+  const mine=(me&&p.ratings?.[me])||{};const rs=p.ratings||{};const s=stats(p);
+  modal(`<span class="tag">${esc(p.kind||'Locale')}${p.zone?' · '+esc(p.zone):''}</span>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><h2>${esc(p.name)}</h2>${s.n?`<div class="score" style="margin-bottom:18px">${s.tot.toFixed(1)}<small>su 5</small></div>`:''}</div>
+  ${p.link?`<a class="btn sm" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener">${I.link} Link</a>`:''}
+  ${me?`<form id="f">
+    <div class="subh">Il voto di ${esc(fname(me))}</div>
+    ${CATS.map(c=>`<div class="rate-row"><span class="l">${c.l}${c.h?`<small>${c.h}</small>`:''}</span><span class="seg5">
+      ${[1,2,3,4,5].map(n=>`<input type="radio" id="r-${c.k}-${n}" name="${c.k}" value="${n}" ${+mine[c.k]===n?'checked':''}><label for="r-${c.k}-${n}">${n}</label>`).join('')}
+    </span></div>`).join('')}
+    <label>Cosa hai preso<input name="order" value="${esc(mine.order||'')}" placeholder="Espresso martini, tagliere…"></label>
+    <label>Ci torneresti?</label>
+    <div class="seg">${[['si','Subito'],['forse','Forse'],['no','Mai più']].map(([k,l])=>`<label><input type="radio" name="again" value="${k}" ${mine.again===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
+    <label>Commento<textarea name="comment" placeholder="Il barista, la musica, il bagno…">${esc(mine.comment||'')}</textarea></label>
+    <div class="actions"><button class="btn pri">Salva il mio voto</button></div>
+  </form>`:`<div class="hint">Scegli chi sei in alto a destra per votare.</div>`}
+  ${Object.keys(rs).length?`<div class="votes"><div class="subh">I voti di tutte</div><table>
+    <tr><th></th>${CATS.map(c=>`<th title="${c.l}">${c.s}</th>`).join('')}</tr>
+    ${Object.entries(rs).map(([fid,r])=>`<tr><td>${avatar(fid)}</td>${CATS.map(c=>`<td>${r[c.k]||'—'}</td>`).join('')}</tr>
+      ${r.order||r.comment?`<tr><td></td><td colspan="${CATS.length}" class="q">${r.order?esc(r.order)+(r.comment?' — ':''):''}${r.comment?'“'+esc(r.comment)+'”':''}</td></tr>`:''}`).join('')}
+  </table></div>`:''}
+  <div class="actions" style="justify-content:space-between">
+    <button class="btn sm ghost danger" onclick="delPlace('${p.id}')">${I.trash} Elimina</button>
+    <div class="btns"><button class="btn sm" onclick="replan('${p.id}')">${I.calplus} Ritorniamoci</button>
+    <button class="btn sm" onclick="placeForm(S.places.find(x=>x.id==='${p.id}'))">${I.edit} Modifica</button></div>
+  </div>`);
+  const f=$('#f');
+  if(f)f.onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f));
+    const cur=S.places.find(x=>x.id===id);
+    await put('places',{...cur,ratings:{...(cur.ratings||{}),[me]:d}});toast('Voto salvato');placeDetail(id)};
+}
+function replan(id){const p=S.places.find(x=>x.id===id);eventForm({title:'Si torna da '+p.name,place:p.name+(p.zone?', '+p.zone:'')})}
+async function delPlace(id){if(!confirm('Eliminiamo questo locale e tutti i voti?'))return;await api('DELETE','places',null,id);closeModal()}
+
+/* ================= DA PROVARE ================= */
+function renderWish(v){
+  const list=[...S.wishlist].sort((a,b)=>(b.want||[]).length-(a.want||[]).length);
+  v.innerHTML=head('03 — Da provare','La lista dei desideri','I posti che vogliamo provare. Indecise? Lasciate scegliere alla ruota.',
+    `<button class="btn pri" onclick="wishForm()">${I.plus} Aggiungi posto</button>`)+`
+  <section class="wheel">
+    <div class="pick" id="pick">${list.length?'Dove andiamo stasera?':'—'}</div>
+    <button class="btn" onclick="spin()" ${list.length?'':'disabled'}>${I.sparkle} Gira la ruota</button>
+  </section>
+  ${list.length?`<div class="grid">${list.map(w=>{const want=w.want||[];const iW=me&&want.includes(me);return`
+    <article class="card wish">
+      <span class="tag">${esc(w.kind||'Posto')}${w.zone?' · '+esc(w.zone):''}</span>
+      <h3>${esc(w.name)}</h3>
+      ${w.note?`<p>${esc(w.note)}</p>`:''}
+      ${w.link?`<a class="muted small" href="${esc(safeUrl(w.link))}" target="_blank" rel="noopener">${esc(w.link.replace(/^https?:\/\/(www\.)?/,'').slice(0,40))}</a>`:''}
+      <div class="foot">
+        <span class="small muted">di ${esc(fname(w.addedBy))}</span>
+        <div class="btns">
+          <button class="btn sm heart ${iW?'on':''}" onclick="toggleWant('${w.id}')" title="Ci voglio andare">${I.heart} ${want.length}</button>
+          <button class="btn sm icon" onclick="planWish('${w.id}')" title="Pianifica">${I.calplus}</button>
+          <button class="btn sm icon" onclick="doneWish('${w.id}')" title="Ci siamo state">${I.check}</button>
+          <button class="btn sm icon ghost" onclick="delWish('${w.id}')" title="Elimina">${I.trash}</button>
+        </div>
+      </div>
+    </article>`}).join('')}</div>`:`<div class="empty"><b>La lista è vuota.</b></div>`}`;
+}
+function wishForm(){
+  if(needMe())return;
+  modal(`<h2>Un posto nuovo</h2><form id="f">
+    <label>Nome<input name="name" required></label>
+    <div class="row"><label>Tipo<select name="kind">${KINDS.map(k=>`<option>${k}</option>`).join('')}</select></label><label>Zona<input name="zone"></label></div>
+    <label>Link<input name="link" placeholder="Instagram, sito, recensione…"></label>
+    <label>Perché ci dobbiamo andare<textarea name="note" placeholder="Me l’ha detto la collega, il dj del giovedì…"></textarea></label>
+    <div class="actions"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">Aggiungi</button></div></form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();await api('POST','wishlist',{...Object.fromEntries(new FormData(e.target)),addedBy:me,want:[me]});closeModal();toast('Aggiunto alla lista')};
+}
+async function toggleWant(id){if(needMe())return;const w=S.wishlist.find(x=>x.id===id);const s=new Set(w.want||[]);s.has(me)?s.delete(me):s.add(me);await put('wishlist',{...w,want:[...s]})}
+function planWish(id){const w=S.wishlist.find(x=>x.id===id);eventForm({title:w.name,place:w.name+(w.zone?', '+w.zone:'')})}
+async function doneWish(id){
+  if(needMe())return;const w=S.wishlist.find(x=>x.id===id);
+  const n=await api('POST','places',{name:w.name,kind:w.kind,zone:w.zone,link:w.link,visited:today(),ratings:{},addedBy:me});
+  await api('DELETE','wishlist',null,id);
+  if(n){tab='places';ls.set('ms_tab',tab);render();placeDetail(n.id);toast('Spostato nei locali, ora votate')}
+}
+async function delWish(id){if(!confirm('Togliamo questo posto dalla lista?'))return;await api('DELETE','wishlist',null,id)}
+function spin(){
+  const pool=S.wishlist.flatMap(w=>Array(Math.max(1,(w.want||[]).length)).fill(w));if(!pool.length)return;
+  const el=$('#pick');el.classList.add('spin');let i=0,t=45;
+  const winner=pool[Math.floor(Math.random()*pool.length)];
+  const step=()=>{el.textContent=S.wishlist[i++%S.wishlist.length].name;t*=1.13;
+    if(t<440)setTimeout(step,t);else{el.classList.remove('spin');el.textContent=winner.name;toast('Il destino ha parlato')}};
+  step();
+}
+
+/* ================= AMICHE ================= */
+const COLORS=['#a3164a','#d88ea4','#b5935f','#6d6386','#151214','#c97b5a','#5f8a80'];
+function renderFriends(v){
+  v.innerHTML=head('05 — Le amiche','Le ragazze','Il numero di telefono serve per chiamarsi con un tocco su WhatsApp o FaceTime.',
+    `<button class="btn pri" onclick="friendForm()">${I.plus} Aggiungi amica</button>`)+
+  (S.friends.length?`<div class="grid">${S.friends.map(f=>{
+    const n=S.events.filter(e=>(e.going||[]).includes(f.id)).length;
+    const r=S.places.filter(p=>p.ratings?.[f.id]).length;
+    return`<article class="card friend">
+      <div class="big" style="background:${esc(f.color)}">${esc((f.name||'?')[0].toUpperCase())}</div>
+      <h3>${esc(f.name)}</h3>
+      ${f.motto?`<p class="motto">“${esc(f.motto)}”</p>`:''}
+      <div class="stats"><div><b>${n}</b><small>Serate</small></div><div><b>${r}</b><small>Voti</small></div></div>
+      <div class="btns" style="justify-content:center">
+        ${f.phone?`<a class="btn sm icon" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener" title="WhatsApp">${I.msg}</a><a class="btn sm icon" href="facetime://${esc(telNum(f.phone))}" title="FaceTime">${I.video}</a>`:''}
+        <button class="btn sm" onclick="friendForm(S.friends.find(x=>x.id==='${f.id}'))">${I.edit} Modifica</button>
+      </div></article>`}).join('')}</div>`
+  :`<div class="empty"><b>Chi siete?</b></div>`);
+}
+function friendForm(f={}){
+  const x={name:'',phone:'',color:COLORS[S.friends.length%COLORS.length],motto:'',...f};
+  modal(`<h2>${f.id?esc(f.name):'Benvenuta'}</h2><form id="f">
+    <label>Nome<input name="name" required value="${esc(x.name)}"></label>
+    <label>Telefono · con prefisso<input name="phone" value="${esc(x.phone)}" type="tel" placeholder="+39 333 …"></label>
+    <label>Motto<input name="motto" value="${esc(x.motto)}" placeholder="un drink, poi vediamo"></label>
+    <label>Colore</label><div class="seg swatch">${COLORS.map(c=>`<label><input type="radio" name="color" value="${c}" ${x.color===c?'checked':''}><span style="background:${c}"></span></label>`).join('')}</div>
+    <div class="actions" style="justify-content:space-between">${f.id?`<button type="button" class="btn sm ghost danger" onclick="delFriend('${f.id}')">${I.trash} Elimina</button>`:'<span></span>'}
+    <div class="btns"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">Salva</button></div></div></form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    if(f.id)await put('friends',{...x,...d});
+    else{const n=await api('POST','friends',d);if(n&&!me){me=n.id;ls.set('ms_me',me);render();toast(`Benvenuta ${n.name}`)}}
+    closeModal()};
+}
+async function delFriend(id){if(!confirm('Eliminare questo profilo?'))return;await api('DELETE','friends',null,id);if(me===id){me=null;ls.set('ms_me','')}closeModal()}
+
+/* ================= boot ================= */
+let booted=false;
+async function boot(){
+  await refresh();
+  if(!S.friends.length){tab='friends';render()}
+  if(!booted){booted=true;setInterval(()=>{if(!$('#modal').classList.contains('open'))refresh()},REMOTE?15000:10000)}
+}
+(async()=>{
+  if(REMOTE){
+    if(!ls.get('ms_key'))return askKey(false);
+    try{if(!(await checkKey()))return askKey(true)}catch(e){toast('Database non raggiungibile')}
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
