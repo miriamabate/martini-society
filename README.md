@@ -54,16 +54,20 @@ In modalità locale tutto viene salvato in `data.json`, nella cartella dell'app.
 
 GitHub Pages pubblica solo le pagine, non può salvare dati. I dati vanno quindi su **Supabase**, un database gratuito, e sono protetti da una **parola d'ordine del club**.
 
-### 1. Il database (automatico con GitHub Actions)
+### 1. Il database e gli accessi (automatico con GitHub Actions)
 1. Crea un progetto su [supabase.com](https://supabase.com). Il piano Free basta.
-2. Nel repo GitHub apri **Settings → Secrets and variables → Actions → New repository secret** e aggiungi:
-   - `SUPABASE_DB_URL`: in Supabase premi **Connect** (in alto), scegli **Session pooler** e copia l'URI, sostituendo `[YOUR-PASSWORD]` con la password del database (si reimposta da Project Settings → Database).
-   - `CLUB_PASSWORD`: la parola d'ordine del club.
-3. Il workflow **Database** (`.github/workflows/database.yml`) parte da solo a ogni push che modifica `supabase/` e applica le migrazioni in `supabase/migrations/`, ognuna una volta sola. Per lanciarlo a mano: **Actions → Database → Run workflow**.
-4. Per cambiare la parola d'ordine aggiorna il secret `CLUB_PASSWORD` e rilancia il workflow.
+2. **Accessi:** in Supabase → **Authentication**:
+   - in **Sign In / Providers** lascia attivo **Email** e **disattiva "Allow new users to sign up"**, così nessuno può crearsi un account da solo;
+   - in **Users → Add user → Create new user** crea un account per ognuna (email + password, con **Auto Confirm User** spuntato).
+3. Nel repo GitHub apri **Settings → Secrets and variables → Actions** e aggiungi:
+   - `SUPABASE_DB_URL`: in Supabase premi **Connect**, scegli **Session pooler** e copia l'URI, sostituendo `[YOUR-PASSWORD]` con la password del database;
+   - `CLUB_EMAILS`: le email ammesse, separate da virgola (es. `miriam@…, giulia@…`).
+4. Il workflow **Database** applica le migrazioni in `supabase/migrations/` e aggiorna la lista del club a ogni push su `supabase/`. Per lanciarlo a mano: **Actions → Database → Run workflow**.
+
+**Togliere l'accesso a qualcuna:** levala da `CLUB_EMAILS` e rilancia il workflow, poi eliminala anche da Authentication → Users.
 
 ### 2. La configurazione
-Apri `docs/config.js` e incolla URL e anon key. La anon key può stare in un repo pubblico, è fatta apposta. La **parola d'ordine invece non va mai scritta lì**: la inserite voi la prima volta che aprite l'app.
+Apri `docs/config.js` e incolla URL e chiave publishable: possono stare in un repo pubblico, da sole non danno accesso ai dati.
 
 ### 3. La pubblicazione (GitHub Pages)
 1. Su GitHub crea un repo nuovo, per esempio `martini-society`.
@@ -85,3 +89,10 @@ Apri `docs/config.js` e incolla URL e anon key. La anon key può stare in un rep
 
 ## Sticker personalizzati
 Nella cartella `docs/stickers/` puoi mettere dei PNG con lo sfondo trasparente (`cosmo.png`, `gift.png`, `city.png`, `kiss.png`, `legs.png`, `taxi.png`): l'app li usa al posto dei disegni. Ricorda che su GitHub Pages il sito, e quindi anche le immagini, è pubblico.
+
+## Come app sul telefono
+L'app si installa sul telefono come app web (PWA), con la sua icona e a schermo intero:
+- **iPhone:** apri il link in **Safari**, poi **Condividi** e **Aggiungi alla schermata Home**.
+- **Android:** apri il link in **Chrome**, poi il menu **⋮** e **Installa app** (o "Aggiungi a schermata Home").
+
+Al primo avvio dall'icona l'app chiede di nuovo email e password: è normale, una volta sola.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Applica le migrazioni in supabase/migrations (una volta sola ciascuna) e imposta la parola d'ordine.
-# Variabili: DATABASE_URL (obbligatoria), CLUB_PASSWORD (facoltativa: se c'è, sostituisce quella attuale)
+# Applica le migrazioni in supabase/migrations (una volta sola ciascuna) e aggiorna la lista delle email del club.
+# Variabili: DATABASE_URL (obbligatoria), CLUB_EMAILS (email ammesse, separate da virgola: sostituisce la lista attuale)
 set -euo pipefail
 : "${DATABASE_URL:?Manca DATABASE_URL (secret SUPABASE_DB_URL)}"
 DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -20,14 +20,15 @@ for f in "$DIR"/migrations/*.sql; do
   fi
 done
 
-if [ -n "${CLUB_PASSWORD:-}" ]; then
-  "${PSQL[@]}" -v pw="$CLUB_PASSWORD" <<'SQL'
-begin;
-delete from private.club;
-insert into private.club values (:'pw');
-commit;
-SQL
-  echo "✓ parola d'ordine impostata"
+if [ -n "${CLUB_EMAILS:-}" ]; then
+  emails="$(printf '%s' "$CLUB_EMAILS" | tr ',; ' '\n\n\n' | tr 'A-Z' 'a-z' | grep -E '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' | sort -u || true)"
+  if [ -z "$emails" ]; then echo "✗ CLUB_EMAILS non contiene email valide" >&2; exit 1; fi
+  {
+    echo "begin; delete from private.members;"
+    while IFS= read -r e; do printf "insert into private.members values ('%s');\n" "$e"; done <<< "$emails"
+    echo "commit;"
+  } | "${PSQL[@]}"
+  echo "✓ lista del club aggiornata: $(printf '%s\n' "$emails" | wc -l | tr -d ' ') email"
 fi
 
 "${PSQL[@]}" -c "notify pgrst, 'reload schema';"

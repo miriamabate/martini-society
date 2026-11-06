@@ -407,6 +407,9 @@ footer{font-family:var(--display);font-weight:500;letter-spacing:.2em}
 
 @media (display-mode:standalone){.hero{padding-top:env(safe-area-inset-top);height:calc(92px + env(safe-area-inset-top))}}
 @media (display-mode:standalone) and (max-width:640px){.hero{height:calc(72px + env(safe-area-inset-top))}}
+
+.me-name{font-weight:600;font-size:13px}
+@media (max-width:640px){.me-name{display:none}}
 </style>
 </head>
 <body>
@@ -623,18 +626,35 @@ const REMOTE=!!(CFG.supabaseUrl&&CFG.supabaseAnonKey);
 const EMPTY=()=>({friends:[],events:[],places:[],wishlist:[],columns:[],polls:[],pollvotes:[],settings:[]});
 const newId=()=>(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/-/g,'').slice(0,12);
 const sbBase=()=>CFG.supabaseUrl.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'')+'/rest/v1';
-const sbHeaders=(extra={})=>({apikey:CFG.supabaseAnonKey,...(CFG.supabaseAnonKey.startsWith('sb_')?{}:{Authorization:'Bearer '+CFG.supabaseAnonKey}),'Content-Type':'application/json',...extra});
-const KEY=()=>ls.get('ms_key')||'';
-// tutte le chiamate passano da funzioni del database che controllano la parola d'ordine (niente header custom → niente problemi CORS)
+const AUTHB=()=>CFG.supabaseUrl.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'')+'/auth/v1';
+let SES=null;try{SES=JSON.parse(ls.get('ms_session')||'null')}catch(e){SES=null}
+function saveSes(d){
+  SES=d?{access_token:d.access_token,refresh_token:d.refresh_token,expires_at:d.expires_at||Math.floor(Date.now()/1000)+(d.expires_in||3600),email:((d.user&&d.user.email)||(SES&&SES.email)||'').toLowerCase()}:null;
+  ls.set('ms_session',SES?JSON.stringify(SES):'');
+}
+async function authCall(path,body,tok){
+  const r=await fetch(AUTHB()+path,{method:'POST',headers:{apikey:CFG.supabaseAnonKey,'Content-Type':'application/json',...(tok?{Authorization:'Bearer '+tok}:{})},body:JSON.stringify(body||{})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.error_description||j.msg||j.message||('HTTP '+r.status));e.status=r.status;console.warn('Supabase auth',r.status,e.message);throw e}
+  return j;
+}
+let refreshing=null;
+async function token(){
+  if(!SES)return null;
+  if(SES.expires_at-60>Date.now()/1000)return SES.access_token;
+  if(!refreshing)refreshing=authCall('/token?grant_type=refresh_token',{refresh_token:SES.refresh_token}).then(saveSes,e=>{if(e.status>=400&&e.status<500)saveSes(null);throw e}).finally(()=>{refreshing=null});
+  await refreshing;return SES&&SES.access_token;
+}
 async function rpc(fn,args){
-  const r=await fetch(sbBase()+'/rpc/'+fn,{method:'POST',cache:'no-store',headers:sbHeaders(),body:JSON.stringify({k:KEY(),...args})});
+  const t=await token();
+  const r=await fetch(sbBase()+'/rpc/'+fn,{method:'POST',cache:'no-store',headers:{apikey:CFG.supabaseAnonKey,...(t?{Authorization:'Bearer '+t}:{}),'Content-Type':'application/json'},body:JSON.stringify(args||{})});
   if(!r.ok){let m='';try{m=(await r.json()).message||''}catch(e){}const e=new Error('HTTP '+r.status+' '+m);e.status=r.status;console.warn('Supabase',fn,r.status,m);throw e}
   return r.status===204?null:r.json().catch(()=>null);
 }
-async function checkKey(){return !!(await rpc('club_ok',{}))}
+async function checkMember(){return !!(await rpc('me_ok'))}
 async function loadState(){
   if(!REMOTE){const r=await fetch('/api/state',{cache:'no-store'});if(!r.ok)throw new Error(r.status);return {...EMPTY(),...(await r.json())}}
-  const rows=await rpc('ms_list',{});
+  const rows=await rpc('ms_list');
   const s=EMPTY();(rows||[]).forEach(x=>{if(s[x.col])s[x.col].push({...x.data,id:x.id})});return s;
 }
 async function send(method,col,body,id){
@@ -647,24 +667,37 @@ async function send(method,col,body,id){
   if(method==='DELETE'){await rpc('ms_del',{p_id:id});return{ok:true}}
 }
 async function refresh(){
-  try{S=await loadState();render()}
-  catch(e){if(e.status===401||e.status===403)return askKey(true);toast(REMOTE?'Database non raggiungibile':'Server non raggiungibile')}
+  try{S=await loadState();if(REMOTE&&SES){const mine=S.friends.find(f=>(f.email||'').toLowerCase()===SES.email);me=mine?mine.id:null}render()}
+  catch(e){if(e.status===401||e.status===403)return askLogin('Sessione scaduta: rientra.');toast(REMOTE?'Database non raggiungibile':'Server non raggiungibile')}
 }
 async function api(method,col,body,id){
   try{const out=await send(method,col,body,id);await refresh();return out}
-  catch(e){if(e.status===401||e.status===403){askKey(true);return null}toast('Non sono riuscita a salvare');return null}
+  catch(e){if(e.status===401||e.status===403){askLogin('Sessione scaduta: rientra.');return null}toast('Non sono riuscita a salvare');return null}
 }
 const put=(col,obj)=>{const{id,...rest}=obj;return api('PUT',col,{...rest,id},id)};
-function askKey(wrong){
+function askLogin(msg){
   modal(`<div style="text-align:center;padding:10px 0">
-    <div class="kick" style="justify-content:center">Martini Society</div>
-    <h2 style="font-size:46px;margin-top:14px">Solo su invito</h2>
-    <p class="muted" style="margin:-6px 0 0">${wrong?'Parola d’ordine sbagliata. Riprova.':'Scrivi la parola d’ordine del club per entrare.'}</p>
-    <form id="kf"><input name="k" type="password" required autofocus placeholder="parola d’ordine" style="text-align:center;margin-top:24px">
-    <div class="actions" style="justify-content:center"><button class="btn pri">Entra</button></div></form></div>`,true);
-  $('#kf').onsubmit=async e=>{e.preventDefault();ls.set('ms_key',e.target.k.value.trim());
-    try{if(await checkKey()){closeModal();toast('Benvenuta nel club');boot()}else askKey(true)}
-    catch(err){toast('Database non raggiungibile')}};
+    <h2 style="font-size:44px;margin-top:6px">Solo su invito</h2>
+    <p class="muted" style="margin:-6px 0 0">${esc(msg||'Entra con la tua email e la tua password.')}</p>
+    <form id="kf" style="text-align:left">
+      <label>Email<input name="email" type="email" required autocomplete="username" value="${esc((SES&&SES.email)||ls.get('ms_last_email')||'')}"></label>
+      <label>Password<input name="pw" type="password" required autocomplete="current-password"></label>
+      <div class="actions" style="justify-content:center"><button class="btn pri">Entra</button></div></form></div>`,true);
+  $('#kf').onsubmit=async e=>{e.preventDefault();const f=e.target,b=f.querySelector('button');b.disabled=true;
+    const email=f.email.value.trim().toLowerCase();ls.set('ms_last_email',email);
+    try{
+      saveSes(await authCall('/token?grant_type=password',{email,password:f.pw.value}));
+      if(!(await checkMember())){await logout(true);return askLogin('Questa email non è nella lista del club.')}
+      closeModal();toast('Benvenuta nel club');boot();
+    }catch(err){b.disabled=false;
+      if(err.status===400||err.status===401)askLogin('Email o password sbagliate.');
+      else if(err.status===429)askLogin('Troppi tentativi: riprova tra qualche minuto.');
+      else toast('Database non raggiungibile')}};
+}
+async function logout(silent){
+  try{if(SES)await authCall('/logout',{},SES.access_token)}catch(e){}
+  saveSes(null);me=null;
+  if(!silent){S=EMPTY();render();askLogin('Sei uscita. A presto!')}
 }
 
 /* ================= modal ================= */
@@ -676,8 +709,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').datase
 /* ================= render root ================= */
 function render(){
   const f=friend(me);
-  $('#meBox').innerHTML=`${f?avatar(me):''}<select id="meSel" aria-label="Chi sei?"><option value="">Chi sei?</option>${S.friends.map(x=>`<option value="${x.id}" ${x.id===me?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`;
-  $('#meSel').onchange=e=>{me=e.target.value||null;ls.set('ms_me',me||'');render();if(me)toast(`Ciao ${fname(me)}`)};
+  if(REMOTE){$('#meBox').innerHTML=SES?`${f?avatar(me):''}<span class="me-name">${esc(f?f.name:SES.email)}</span><button class="btn sm ghost" onclick="logout()">Esci</button>`:''}
+  else{$('#meBox').innerHTML=`${f?avatar(me):''}<select id="meSel" aria-label="Chi sei?"><option value="">Chi sei?</option>${S.friends.map(x=>`<option value="${x.id}" ${x.id===me?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`;
+  $('#meSel').onchange=e=>{me=e.target.value||null;ls.set('ms_me',me||'');render();if(me)toast(`Ciao ${fname(me)}`)};}
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
   const v=$('#view');
   ({cal:renderCal,polls:renderPolls,places:renderPlaces,wish:renderWish,friends:renderFriends}[tab]||renderCal)(v);
@@ -685,7 +719,7 @@ function render(){
 }
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;ls.set('ms_tab',tab);render();
   if(window.innerWidth>760)window.scrollTo({top:$('nav').offsetTop,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'})});
-function needMe(){if(!me){toast('Prima scegli chi sei, in alto a destra');return true}return false}
+function needMe(){if(!me){if(REMOTE){friendForm({email:SES&&SES.email});toast('Prima crea il tuo profilo')}else toast('Prima scegli chi sei, in alto a destra');return true}return false}
 const HEADICON={cal:'taxi',polls:'kiss',places:'cosmo',wish:'gift',friends:'legs'};
 const MVB={"cosmo": "0 0 240 300", "kiss": "0 0 260 170", "legs": "0 0 300 480", "city": "0 0 260 400", "gift": "0 0 260 230", "taxi": "0 0 400 150"};
 const mini=n=>{const vb=MVB[n];const[x,y,w,h]=vb.split(" ");return `<svg class="mini mini-${n}" viewBox="${vb}" aria-hidden="true"><use href="#s-${n}" x="${x}" y="${y}" width="${w}" height="${h}" filter="url(#stk)"/></svg>`};
@@ -781,14 +815,10 @@ function eventDetail(id){
   let call='';
   if(e.type==='chiamata'){
     const url=callUrl(e);const g=grp();
-    const others=S.friends.filter(f=>f.id!==me&&f.phone);
     call=`<div class="callbox">
       ${url?`<a class="btn acc big" href="${esc(safeUrl(url))}" target="_blank" rel="noopener">${e.platform==='instagram'?I.ig:I.phone} Avvia</a>
         <div class="muted small">${e.platform==='instagram'&&!e.link?`Si apre il gruppo <b>${esc(g.name)}</b> su Instagram: tocca la videocamera in alto per iniziare la chiamata.`:'Si apre la chiamata: tocca per entrare.'}</div>`
       :`<div class="hint">Per il pulsante <b>Avvia</b> serve il link del gruppo ${esc(g.name)}: lo imposti in <a href="#" onclick="closeModal();tab='friends';render();groupForm();return false">Amiche → Il gruppo</a>.</div>`}
-      ${e.platform!=='instagram'&&others.length?`<div class="btns" style="margin-top:10px">${others.map(f=>e.platform==='facetime'
-        ?`<a class="btn sm" href="facetime://${esc(telNum(f.phone))}">${I.video} ${esc(f.name)}</a>`
-        :`<a class="btn sm" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener">${I.msg} ${esc(f.name)}</a>`).join('')}</div>`:''}
     </div>`;
   }
   modal(`<span class="tag">${tdot(e.type)} ${T.l}${e.type==='chiamata'?' · '+(PLAT[e.platform]||'WhatsApp'):''}</span>
@@ -1036,8 +1066,8 @@ function renderFriends(v){
   const groupCard=`<article class="card group"><div><span class="tag">${I.users} Il gruppo</span><h3>${esc(g.name)}</h3>
     <div class="muted small">${g.instagram?'Instagram collegato':'Instagram non collegato'} · ${g.whatsapp?'WhatsApp collegato':'WhatsApp non collegato'}</div></div>
     <div class="btns">${g.instagram?`<a class="btn sm icon" href="${esc(safeUrl(g.instagram))}" target="_blank" rel="noopener" title="Apri su Instagram">${I.ig}</a>`:''}<button class="btn sm" onclick="groupForm()">${I.edit} ${g.instagram||g.whatsapp?'Modifica':'Collega'}</button></div></article>`;
-  v.innerHTML=head('05 — Le amiche','Le ragazze','Il numero di telefono serve per chiamarsi con un tocco su WhatsApp o FaceTime.',
-    `<button class="btn pri" onclick="friendForm()">${I.plus} Aggiungi amica</button>`)+groupCard+
+  v.innerHTML=head('05 — Le amiche','Le ragazze','',
+    REMOTE?'':`<button class="btn pri" onclick="friendForm()">${I.plus} Aggiungi amica</button>`)+groupCard+
   (S.friends.length?`<div class="grid">${S.friends.map(f=>{
     const n=S.events.filter(e=>(e.going||[]).includes(f.id)).length;
     const r=S.places.filter(p=>p.ratings?.[f.id]).length;
@@ -1047,23 +1077,22 @@ function renderFriends(v){
       ${f.motto?`<p class="motto">“${esc(f.motto)}”</p>`:''}
       <div class="stats"><div><b>${n}</b><small>Serate</small></div><div><b>${r}</b><small>Voti</small></div></div>
       <div class="btns" style="justify-content:center">
-        ${f.phone?`<a class="btn sm icon" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener" title="WhatsApp">${I.msg}</a><a class="btn sm icon" href="facetime://${esc(telNum(f.phone))}" title="FaceTime">${I.video}</a>`:''}
-        <button class="btn sm" onclick="friendForm(S.friends.find(x=>x.id==='${f.id}'))">${I.edit} Modifica</button>
+        ${!REMOTE||f.id===me?`<button class="btn sm" onclick="friendForm(S.friends.find(x=>x.id==='${f.id}'))">${I.edit} Modifica</button>`:''}
       </div></article>`}).join('')}</div>`
   :`<div class="empty"><b>Chi siete?</b></div>`);
 }
 function friendForm(f={}){
-  const x={name:'',phone:'',color:COLORS[S.friends.length%COLORS.length],motto:'',...f};
-  modal(`<h2>${f.id?esc(f.name):'Benvenuta'}</h2><form id="f">
+  const x={name:'',color:COLORS[S.friends.length%COLORS.length],motto:'',...f};delete x.phone;
+  modal(`<h2>${f.id?esc(f.name):'Crea il tuo profilo'}</h2><form id="f">
     <label>Nome<input name="name" required value="${esc(x.name)}"></label>
-    <label>Telefono · con prefisso<input name="phone" value="${esc(x.phone)}" type="tel" placeholder="+39 333 …"></label>
+    ${REMOTE&&x.email?`<div class="muted small" style="margin-top:8px">Collegato a ${esc(x.email)}</div>`:''}
     <label>Motto<input name="motto" value="${esc(x.motto)}" placeholder="un drink, poi vediamo"></label>
     <label>Colore</label><div class="seg swatch">${COLORS.map(c=>`<label><input type="radio" name="color" value="${c}" ${x.color===c?'checked':''}><span style="background:${c}"></span></label>`).join('')}</div>
     <div class="actions" style="justify-content:space-between">${f.id?`<button type="button" class="btn sm ghost danger" onclick="delFriend('${f.id}')">${I.trash} Elimina</button>`:'<span></span>'}
     <div class="btns"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">Salva</button></div></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
     if(f.id)await put('friends',{...x,...d});
-    else{const n=await api('POST','friends',d);if(n&&!me){me=n.id;ls.set('ms_me',me);render();toast(`Benvenuta ${n.name}`)}}
+    else{if(REMOTE&&SES)d.email=SES.email;const n=await api('POST','friends',d);if(n&&!me){me=n.id;ls.set('ms_me',me);render();toast(`Benvenuta ${n.name}`)}}
     closeModal()};
 }
 function groupForm(){
@@ -1085,14 +1114,17 @@ async function delFriend(id){if(!confirm('Eliminare questo profilo?'))return;awa
 let booted=false;
 async function boot(){
   await refresh();
-  if(!S.friends.length){tab='friends';render()}
+  if(REMOTE&&SES&&!me){tab='friends';render();friendForm({email:SES.email})}
+  else if(!S.friends.length){tab='friends';render()}
   if(!booted){booted=true;setInterval(()=>{if(!$('#modal').classList.contains('open'))refresh()},REMOTE?15000:10000)}
 }
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
   if(REMOTE){
-    if(!ls.get('ms_key'))return askKey(false);
-    try{if(!(await checkKey()))return askKey(true)}catch(e){toast('Database non raggiungibile')}
+    ls.set('ms_key','');
+    if(!SES)return askLogin();
+    try{if(!(await checkMember()))return askLogin('Questa email non è nella lista del club.')}
+    catch(e){if(e.status===401||e.status===403)return askLogin('Sessione scaduta: rientra.');toast('Database non raggiungibile')}
   }
   boot();
 })();
