@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#faf7f4">
+<meta name="theme-color" content="#f3ebdf">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Martini Society">
 <title>Martini Society</title>
@@ -210,6 +214,12 @@ h3{font-family:var(--display);font-weight:600;letter-spacing:-.025em;margin:0}
 form label.chk{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:500;margin-top:18px}
 form label.chk input{width:18px;height:18px;accent-color:var(--accent)}
 
+/* ---------- calls & group ---------- */
+.callbox{margin-top:18px;padding:16px;border:1px dashed var(--line);border-radius:16px;background:var(--paper);display:grid;gap:8px;justify-items:start}
+.btn.big{padding:14px 28px;font-size:15px}
+.card.group{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.card.group h3{font-size:24px;margin:6px 0 2px}
+
 /* ---------- friends ---------- */
 .friend{text-align:center;padding:34px 22px 24px}
 .friend .big{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;font-family:var(--display);font-size:40px;font-weight:700;color:#fff;position:relative}
@@ -394,6 +404,9 @@ footer{font-family:var(--display);font-weight:500;letter-spacing:.2em}
   .hero .st-girl3{display:none}
   .head h2{font-size:30px}.sheet h2{font-size:26px}
 }
+
+@media (display-mode:standalone){.hero{padding-top:env(safe-area-inset-top);height:calc(92px + env(safe-area-inset-top))}}
+@media (display-mode:standalone) and (max-width:640px){.hero{height:calc(72px + env(safe-area-inset-top))}}
 </style>
 </head>
 <body>
@@ -565,6 +578,7 @@ const I={
   sparkle:ic('<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/>'),
   link:ic('<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>'),
   cal2:ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
+  ig:ic('<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".8" fill="currentColor"/>'),
   map:ic('<path d="M9 4.5L3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5z"/><path d="M9 4.5v13M15 6.5v13"/>'),
 };
 
@@ -589,7 +603,7 @@ const telNum=p=>{const s=String(p||'').trim();return s.startsWith('+')?'+'+digit
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2400)}
 
 /* ================= state ================= */
-let S={friends:[],events:[],places:[],wishlist:[],columns:[],polls:[],pollvotes:[]};
+let S={friends:[],events:[],places:[],wishlist:[],columns:[],polls:[],pollvotes:[],settings:[]};
 let me=ls.get('ms_me');
 let tab=ls.get('ms_tab')||'cal';if(!['cal','polls','places','wish','friends'].includes(tab))tab='cal';
 let cur=new Date();cur.setDate(1);
@@ -597,13 +611,16 @@ let placeSort='tot',placeFilter='';
 let lastTab=null;
 
 const friend=id=>S.friends.find(f=>f.id===id);
+const grp=()=>({name:'Uscite Romane',instagram:'',whatsapp:'',...(S.settings.find(x=>x.id==='group')||{})});
+const PLAT={instagram:'Instagram',whatsapp:'WhatsApp',facetime:'FaceTime'};
+const callUrl=e=>e.link||(e.platform==='instagram'?grp().instagram:e.platform==='whatsapp'?grp().whatsapp:'')||'';
 const fname=id=>friend(id)?.name||'Qualcuna';
 const avatar=id=>{const f=friend(id);return f?`<span class="av" style="background:${esc(f.color)}" title="${esc(f.name)}">${esc((f.name||'?')[0].toUpperCase())}</span>`:''};
 
 /* ---- storage: server locale (python) oppure Supabase (GitHub Pages) ---- */
 const CFG=window.MARTINI_CONFIG||{};
 const REMOTE=!!(CFG.supabaseUrl&&CFG.supabaseAnonKey);
-const EMPTY=()=>({friends:[],events:[],places:[],wishlist:[],columns:[],polls:[],pollvotes:[]});
+const EMPTY=()=>({friends:[],events:[],places:[],wishlist:[],columns:[],polls:[],pollvotes:[],settings:[]});
 const newId=()=>(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/-/g,'').slice(0,12);
 const sbBase=()=>CFG.supabaseUrl.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'')+'/rest/v1';
 const sbHeaders=(extra={})=>({apikey:CFG.supabaseAnonKey,...(CFG.supabaseAnonKey.startsWith('sb_')?{}:{Authorization:'Bearer '+CFG.supabaseAnonKey}),'Content-Type':'application/json',...extra});
@@ -714,7 +731,8 @@ function renderCal(v){
         <div><span class="tag">${tdot(e.type)} ${(TYPE[e.type]||TYPES[0]).l}${e.time?' · '+esc(e.time):''}</span>
         <div class="ag-t">${esc(e.title)}</div>
         ${e.place&&e.type!=='chiamata'?`<div class="muted small">${esc(e.place)}</div>`:''}
-        ${(e.going||[]).length?`<div class="avs" style="margin-top:8px">${e.going.map(avatar).join('')}</div>`:''}</div></div>`}).join('')
+        ${(e.going||[]).length?`<div class="avs" style="margin-top:8px">${e.going.map(avatar).join('')}</div>`:''}
+        ${e.type==='chiamata'&&callUrl(e)?`<a class="btn sm acc" style="margin-top:10px" href="${esc(safeUrl(callUrl(e)))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${e.platform==='instagram'?I.ig:I.phone} Avvia</a>`:''}</div></div>`}).join('')
       :`<p class="muted" style="font-size:15px;border-top:1px solid var(--line2);padding-top:16px">Agenda vuota. Inaccettabile.</p>`}
     </aside>
   </div>`;
@@ -731,7 +749,7 @@ function dayList(k){
 }
 function eventForm(ev={},date){
   if(needMe())return;
-  const e={type:'appuntamento',date:date||today(),time:'21:00',title:'',place:'',platform:'whatsapp',link:'',notes:'',...ev};
+  const e={type:'appuntamento',date:date||today(),time:'21:00',title:'',place:'',platform:'instagram',link:'',notes:'',...ev};
   if(e.type==='serata')e.type='appuntamento';
   modal(`<h2>${ev.id?'Modifica appuntamento':'Aggiungi al calendario'}</h2>
   <form id="f">
@@ -741,8 +759,8 @@ function eventForm(ev={},date){
     <label class="for-place">Dove<input name="place" value="${esc(e.place)}" placeholder="Nome del locale o indirizzo"></label>
     <div class="for-call">
       <label>Su</label>
-      <div class="seg"><label><input type="radio" name="platform" value="whatsapp" ${e.platform!=='facetime'?'checked':''}><span>WhatsApp</span></label><label><input type="radio" name="platform" value="facetime" ${e.platform==='facetime'?'checked':''}><span>FaceTime</span></label></div>
-      <label>Link della chiamata · facoltativo<input name="link" value="${esc(e.link)}" placeholder="Incolla il link creato in WhatsApp o FaceTime"></label>
+      <div class="seg">${Object.entries(PLAT).map(([k,l])=>`<label><input type="radio" name="platform" value="${k}" ${e.platform===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
+      <label>Link della chiamata · facoltativo<input name="link" value="${esc(e.link)}" placeholder="Vuoto = gruppo ${esc(grp().name)}"></label>
     </div>
     <label>Note · facoltative<textarea name="notes" placeholder="Dress code, chi prenota…">${esc(e.notes)}</textarea></label>
     <div class="actions"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">${I.check} ${ev.id?'Salva':'Aggiungi'}</button></div>
@@ -762,16 +780,18 @@ function eventDetail(id){
   const T=TYPE[e.type]||TYPES[0];const going=e.going||[];const iGo=me&&going.includes(me);
   let call='';
   if(e.type==='chiamata'){
+    const url=callUrl(e);const g=grp();
     const others=S.friends.filter(f=>f.id!==me&&f.phone);
-    call=`<div class="subh">Chiama</div><div class="btns">
-      ${e.link?`<a class="btn acc" href="${esc(safeUrl(e.link))}" target="_blank" rel="noopener">${I.phone} Entra nella chiamata</a>`:''}
-      ${others.map(f=>e.platform==='facetime'
+    call=`<div class="callbox">
+      ${url?`<a class="btn acc big" href="${esc(safeUrl(url))}" target="_blank" rel="noopener">${e.platform==='instagram'?I.ig:I.phone} Avvia</a>
+        <div class="muted small">${e.platform==='instagram'&&!e.link?`Si apre il gruppo <b>${esc(g.name)}</b> su Instagram: tocca la videocamera in alto per iniziare la chiamata.`:'Si apre la chiamata: tocca per entrare.'}</div>`
+      :`<div class="hint">Per il pulsante <b>Avvia</b> serve il link del gruppo ${esc(g.name)}: lo imposti in <a href="#" onclick="closeModal();tab='friends';render();groupForm();return false">Amiche → Il gruppo</a>.</div>`}
+      ${e.platform!=='instagram'&&others.length?`<div class="btns" style="margin-top:10px">${others.map(f=>e.platform==='facetime'
         ?`<a class="btn sm" href="facetime://${esc(telNum(f.phone))}">${I.video} ${esc(f.name)}</a>`
-        :`<a class="btn sm" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener">${I.msg} ${esc(f.name)}</a>`).join('')}
-    </div>
-    ${!e.link&&!others.length?`<div class="hint">Aggiungi i numeri nella sezione Amiche per chiamare con un tocco, oppure incolla il link della chiamata di gruppo.</div>`:''}`;
+        :`<a class="btn sm" href="https://wa.me/${esc(waNum(f.phone))}" target="_blank" rel="noopener">${I.msg} ${esc(f.name)}</a>`).join('')}</div>`:''}
+    </div>`;
   }
-  modal(`<span class="tag">${tdot(e.type)} ${T.l}${e.type==='chiamata'?' · '+(e.platform==='facetime'?'FaceTime':'WhatsApp'):''}</span>
+  modal(`<span class="tag">${tdot(e.type)} ${T.l}${e.type==='chiamata'?' · '+(PLAT[e.platform]||'WhatsApp'):''}</span>
   <h2>${esc(e.title)}</h2>
   <div class="facts">
     <div class="fact">${I.clock}<div>${cap(fmtDate(e.date))}${e.time?` · ore ${esc(e.time)}`:''}</div></div>
@@ -1012,8 +1032,12 @@ async function delWish(id){if(!confirm('Togliamo questo posto dalla lista?'))ret
 /* ================= AMICHE ================= */
 const COLORS=['#a3164a','#d88ea4','#b5935f','#6d6386','#151214','#c97b5a','#5f8a80'];
 function renderFriends(v){
+  const g=grp();
+  const groupCard=`<article class="card group"><div><span class="tag">${I.users} Il gruppo</span><h3>${esc(g.name)}</h3>
+    <div class="muted small">${g.instagram?'Instagram collegato':'Instagram non collegato'} · ${g.whatsapp?'WhatsApp collegato':'WhatsApp non collegato'}</div></div>
+    <div class="btns">${g.instagram?`<a class="btn sm icon" href="${esc(safeUrl(g.instagram))}" target="_blank" rel="noopener" title="Apri su Instagram">${I.ig}</a>`:''}<button class="btn sm" onclick="groupForm()">${I.edit} ${g.instagram||g.whatsapp?'Modifica':'Collega'}</button></div></article>`;
   v.innerHTML=head('05 — Le amiche','Le ragazze','Il numero di telefono serve per chiamarsi con un tocco su WhatsApp o FaceTime.',
-    `<button class="btn pri" onclick="friendForm()">${I.plus} Aggiungi amica</button>`)+
+    `<button class="btn pri" onclick="friendForm()">${I.plus} Aggiungi amica</button>`)+groupCard+
   (S.friends.length?`<div class="grid">${S.friends.map(f=>{
     const n=S.events.filter(e=>(e.going||[]).includes(f.id)).length;
     const r=S.places.filter(p=>p.ratings?.[f.id]).length;
@@ -1042,6 +1066,19 @@ function friendForm(f={}){
     else{const n=await api('POST','friends',d);if(n&&!me){me=n.id;ls.set('ms_me',me);render();toast(`Benvenuta ${n.name}`)}}
     closeModal()};
 }
+function groupForm(){
+  const g=grp();
+  modal(`<h2>Il gruppo</h2><form id="f">
+    <label>Nome<input name="name" value="${esc(g.name)}"></label>
+    <label>Link del gruppo Instagram<input name="instagram" value="${esc(g.instagram)}" placeholder="https://ig.me/j/…"></label>
+    <div class="hint">In Instagram apri la chat del gruppo → tocca il nome in alto → <b>Invita tramite link</b> (o “Link d’invito”) → copia. Da computer va bene anche l’indirizzo della chat, tipo <i>instagram.com/direct/t/…</i></div>
+    <label>Link del gruppo WhatsApp · facoltativo<input name="whatsapp" value="${esc(g.whatsapp)}" placeholder="https://chat.whatsapp.com/…"></label>
+    <div class="actions"><button type="button" class="btn ghost" onclick="closeModal()">Annulla</button><button class="btn pri">${I.check} Salva</button></div></form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    d.instagram=d.instagram.trim();d.whatsapp=d.whatsapp.trim();
+    if(d.instagram&&!/^https?:\/\//.test(d.instagram))d.instagram='https://'+d.instagram;
+    await api('PUT','settings',{...grp(),...d},'group');closeModal();toast('Gruppo salvato')};
+}
 async function delFriend(id){if(!confirm('Eliminare questo profilo?'))return;await api('DELETE','friends',null,id);if(me===id){me=null;ls.set('ms_me','')}closeModal()}
 
 /* ================= boot ================= */
@@ -1051,6 +1088,7 @@ async function boot(){
   if(!S.friends.length){tab='friends';render()}
   if(!booted){booted=true;setInterval(()=>{if(!$('#modal').classList.contains('open'))refresh()},REMOTE?15000:10000)}
 }
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
   if(REMOTE){
     if(!ls.get('ms_key'))return askKey(false);

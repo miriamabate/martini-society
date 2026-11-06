@@ -54,10 +54,13 @@ In modalità locale tutto viene salvato in `data.json`, nella cartella dell'app.
 
 GitHub Pages pubblica solo le pagine, non può salvare dati. I dati vanno quindi su **Supabase**, un database gratuito, e sono protetti da una **parola d'ordine del club**.
 
-### 1. Il database (Supabase, ~5 minuti)
-1. Crea un account su [supabase.com](https://supabase.com) e poi un **New project**. Il piano Free basta.
-2. Vai su **SQL Editor → New query** e incolla il contenuto di `supabase.sql` (se avevi già eseguito una versione precedente, usa invece `supabase-aggiornamento.sql`). **Prima** cambia la parola d'ordine nella riga `insert into private.club …`, poi premi **Run**.
-3. Vai su **Project Settings → API** e copia **Project URL** e la chiave **anon public**.
+### 1. Il database (automatico con GitHub Actions)
+1. Crea un progetto su [supabase.com](https://supabase.com). Il piano Free basta.
+2. Nel repo GitHub apri **Settings → Secrets and variables → Actions → New repository secret** e aggiungi:
+   - `SUPABASE_DB_URL`: in Supabase premi **Connect** (in alto), scegli **Session pooler** e copia l'URI, sostituendo `[YOUR-PASSWORD]` con la password del database (si reimposta da Project Settings → Database).
+   - `CLUB_PASSWORD`: la parola d'ordine del club.
+3. Il workflow **Database** (`.github/workflows/database.yml`) parte da solo a ogni push che modifica `supabase/` e applica le migrazioni in `supabase/migrations/`, ognuna una volta sola. Per lanciarlo a mano: **Actions → Database → Run workflow**.
+4. Per cambiare la parola d'ordine aggiorna il secret `CLUB_PASSWORD` e rilancia il workflow.
 
 ### 2. La configurazione
 Apri `docs/config.js` e incolla URL e anon key. La anon key può stare in un repo pubblico, è fatta apposta. La **parola d'ordine invece non va mai scritta lì**: la inserite voi la prima volta che aprite l'app.

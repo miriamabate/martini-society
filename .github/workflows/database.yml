@@ -1,0 +1,20 @@
+name: Database
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/**", ".github/workflows/database.yml"]
+  workflow_dispatch: {}   # pulsante "Run workflow" (es. dopo aver cambiato la parola d'ordine)
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installa psql
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Applica migrazioni e parola d'ordine
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          CLUB_PASSWORD: ${{ secrets.CLUB_PASSWORD }}
+        run: ./supabase/migrate.sh

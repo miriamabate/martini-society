@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(ROOT, "docs")
 DATA = os.path.join(ROOT, "data.json")
-COLLECTIONS = ("friends", "events", "places", "wishlist", "columns", "polls", "pollvotes")
+COLLECTIONS = ("friends", "events", "places", "wishlist", "columns", "polls", "pollvotes", "settings")
 LOCK = threading.Lock()
 
 
