@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(ROOT, "docs")
 DATA = os.path.join(ROOT, "data.json")
-COLLECTIONS = ("friends", "events", "places", "wishlist", "columns")
+COLLECTIONS = ("friends", "events", "places", "wishlist", "columns", "polls", "pollvotes")
 LOCK = threading.Lock()
 
 
@@ -115,14 +115,17 @@ class Handler(SimpleHTTPRequestHandler):
         col, item = r
         with LOCK:
             d = load()
+            obj["id"] = item
             for i, x in enumerate(d[col]):
                 if x.get("id") == item:
-                    obj["id"] = item
                     obj.setdefault("createdAt", x.get("createdAt"))
                     d[col][i] = obj
                     save(d)
                     return self._send(200, obj)
-        return self._send(404, {"error": "non trovato"})
+            obj.setdefault("createdAt", datetime.now().isoformat(timespec="seconds"))
+            d[col].append(obj)  # upsert: crea se non esiste
+            save(d)
+        return self._send(200, obj)
 
     def do_DELETE(self):
         r = self._route()

@@ -16,7 +16,7 @@ Nel terminale compaiono due indirizzi:
 - **Sul tuo PC:** http://localhost:8000
 - **Per le amiche sulla stessa Wi-Fi:** http://192.168.x.x:8000 (aprilo dal telefono e aggiungilo alla schermata Home: sembra un'app vera)
 
-I font sono inclusi nella cartella `docs/fonts` (Unbounded e Manrope, licenza OFL), quindi l'app funziona anche offline.
+I font sono inclusi nella cartella `docs/fonts` (Bodoni Moda e Manrope, licenza OFL), quindi l'app funziona anche offline.
 
 Su Windows usa `python server.py`. Se il firewall chiede il permesso, consenti l'accesso sulle **reti private**.
 
@@ -31,6 +31,7 @@ Su Windows usa `python server.py`. Se il firewall chiede il permesso, consenti l
 |---|---|
 | 🗓 **Calendario** | Vista del mese con tre tipi di piano: serata/evento, appuntamento e chiamata. Ognuna preme "Ci sono!" per confermare. |
 | 🍸 **Locali** | Ognuna vota da 1 a 5 cibo, drink, prezzo, gente, musica, atmosfera e servizio, poi aggiunge "ci torneresti?", il drink preso e un commento. L'app fa le medie, le classifiche e la Hall of Fame. |
+| 🗳️ **Sondaggi** | Per ogni serata create un sondaggio con più opzioni (dove, cosa, dress code…). Ognuna vota toccando un'opzione, si vede chi ha votato e chi manca; chiuso il sondaggio, l'opzione vincente si aggiunge al calendario con un tocco. |
 | 🎡 **Da provare** | I posti che vogliamo provare. "Ci voglio andare" funziona come un voto, la **Ruota** sceglie a caso (vince più spesso chi ha più voti), "Fatto!" sposta il posto tra i Locali così lo votate. |
 | 👠 **Le amiche** | I profili, con colore, simbolo e motto. |
 
@@ -55,7 +56,7 @@ GitHub Pages pubblica solo le pagine, non può salvare dati. I dati vanno quindi
 
 ### 1. Il database (Supabase, ~5 minuti)
 1. Crea un account su [supabase.com](https://supabase.com) e poi un **New project**. Il piano Free basta.
-2. Vai su **SQL Editor → New query** e incolla il contenuto di `supabase.sql`. **Prima** cambia la parola d'ordine nella riga `insert into private.club …`, poi premi **Run**.
+2. Vai su **SQL Editor → New query** e incolla il contenuto di `supabase.sql` (se avevi già eseguito una versione precedente, usa invece `supabase-aggiornamento.sql`). **Prima** cambia la parola d'ordine nella riga `insert into private.club …`, poi premi **Run**.
 3. Vai su **Project Settings → API** e copia **Project URL** e la chiave **anon public**.
 
 ### 2. La configurazione
@@ -78,3 +79,6 @@ Apri `docs/config.js` e incolla URL e anon key. La anon key può stare in un rep
 - Usate una parola d'ordine **lunga**, tipo una frase. Per cambiarla: `update private.club set secret = 'nuova-frase';` nel SQL Editor. A quel punto l'app la richiede a tutte.
 - Se `config.js` è vuoto, l'app torna in modalità locale con `python3 server.py`.
 - Su Supabase Free i progetti senza attività per 7 giorni vengono messi in pausa. Si riattivano dalla dashboard con un clic.
+
+## Sticker personalizzati
+Nella cartella `docs/stickers/` puoi mettere dei PNG con lo sfondo trasparente (`cosmo.png`, `gift.png`, `city.png`, `kiss.png`, `legs.png`, `taxi.png`): l'app li usa al posto dei disegni. Ricorda che su GitHub Pages il sito, e quindi anche le immagini, è pubblico.

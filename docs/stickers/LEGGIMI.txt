@@ -1,0 +1,14 @@
+Sticker personalizzati
+======================
+Metti qui dei PNG con lo sfondo trasparente e l'app li usa al posto dei disegni:
+
+  girl1.png, girl2.png, girl3.png  (le ragazze)
+  cosmo.png   (in alto a sinistra)
+  gift.png    (in alto, vicino al logo)
+  city.png    (in alto a destra)
+  kiss.png    (in basso a sinistra)
+  legs.png    (in basso, vicino al taxi)
+  taxi.png    (in basso a destra)
+
+Se un file manca, resta il disegno.
+Attenzione: il sito su GitHub Pages è pubblico, quindi anche queste immagini lo sono.
