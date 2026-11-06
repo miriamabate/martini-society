@@ -17,4 +17,4 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
           CLUB_PASSWORD: ${{ secrets.CLUB_PASSWORD }}
-        run: ./supabase/migrate.sh
+        run: bash supabase/migrate.sh
